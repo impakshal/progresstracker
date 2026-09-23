@@ -1,0 +1,10 @@
+{
+  "name": "daily-progress-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Daily Progress Tracker — static site with optional Supabase backend",
+  "scripts": {
+    "build": "node scripts/write-config.js",
+    "start": "npx --yes serve ."
+  }
+}

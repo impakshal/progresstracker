@@ -1,312 +1,314 @@
 /* ==========================================
-   DAILY PROGRESS TRACKER - AUTHENTICATION ENGINE
-   User Registration, Login, Session & Account Scoping
+   DAILY PROGRESS TRACKER - AUTHENTICATION
+   Supabase Auth (+ graceful local guest mode)
    ========================================== */
-
-const USERS_STORAGE_KEY = 'progress_tracker_users_db_v1';
-const SESSION_STORAGE_KEY = 'progress_tracker_active_session_v1';
 
 window.AuthManager = {
   currentUser: null,
+  _initPromise: null,
 
   init: function () {
-    this.loadSession();
-    this.bindAuthEvents();
-    this.updateUserUI();
-  },
+    if (this._initPromise) return this._initPromise;
 
-  // ----------------------------------------------------
-  // Session & Storage Handlers
-  // ----------------------------------------------------
-  loadSession: function () {
-    try {
-      const sessionData = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (sessionData) {
-        this.currentUser = JSON.parse(sessionData);
-      } else {
-        // Default to Guest Mode
+    this._initPromise = (async () => {
+      window.SupabaseApp?.init();
+      this.bindAuthEvents();
+
+      if (!window.SupabaseApp?.isReady()) {
         this.currentUser = null;
+        this.updateUserUI();
+        return;
       }
-    } catch (e) {
-      console.error('Error loading auth session', e);
+
+      const client = SupabaseApp.getClient();
+      const { data, error } = await client.auth.getSession();
+      if (error) console.error('[Auth] getSession', error);
+
+      await this.applySession(data?.session || null);
+
+      client.auth.onAuthStateChange(async (_event, session) => {
+        await this.applySession(session);
+      });
+    })();
+
+    return this._initPromise;
+  },
+
+  isCloudAuth: function () {
+    return !!window.SupabaseApp?.isReady();
+  },
+
+  mapSessionUser: function (session, profile) {
+    if (!session?.user) return null;
+    const u = session.user;
+    const meta = u.user_metadata || {};
+    return {
+      id: u.id,
+      email: u.email,
+      name: profile?.full_name || meta.full_name || meta.name || (u.email || '').split('@')[0],
+      goalTrack: profile?.goal_track || meta.goal_track || 'General Growth'
+    };
+  },
+
+  fetchProfile: async function (userId) {
+    const client = SupabaseApp.getClient();
+    const { data, error } = await client
+      .from('profiles')
+      .select('full_name, goal_track')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('[Auth] profile fetch', error.message);
+      return null;
+    }
+    return data;
+  },
+
+  applySession: async function (session) {
+    if (!session?.user) {
       this.currentUser = null;
+      this.updateUserUI();
+      if (window.App?.onAuthUserChanged) {
+        await window.App.onAuthUserChanged(null);
+      }
+      return;
     }
-  },
 
-  getUsersDB: function () {
-    try {
-      const raw = localStorage.getItem(USERS_STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      return {};
-    }
-  },
-
-  saveUsersDB: function (db) {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(db));
-  },
-
-  saveSession: function (userObj) {
-    this.currentUser = userObj;
-    if (userObj) {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userObj));
-    } else {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-    }
+    const profile = await this.fetchProfile(session.user.id);
+    this.currentUser = this.mapSessionUser(session, profile);
     this.updateUserUI();
 
     if (window.App?.onAuthUserChanged) {
-      window.App.onAuthUserChanged(userObj);
+      await window.App.onAuthUserChanged(this.currentUser);
     }
   },
 
-  // Get current active user key for scoping localStorage
   getUserStorageKey: function () {
+    if (this.currentUser?.id) {
+      return `progress_tracker_logs_user_${this.currentUser.id}`;
+    }
     if (this.currentUser?.email) {
       return `progress_tracker_logs_user_${this.currentUser.email.toLowerCase()}`;
     }
     return 'progress_tracker_daily_logs_v1';
   },
 
-  // ----------------------------------------------------
-  // Sign Up Routine
-  // ----------------------------------------------------
-  signUp: function (name, email, password, goalTrack) {
-    const db = this.getUsersDB();
-    const cleanEmail = email.trim().toLowerCase();
+  getUserId: function () {
+    return this.currentUser?.id || null;
+  },
 
-    if (db[cleanEmail]) {
-      throw new Error('An account with this email already exists.');
+  signUp: async function (name, email, password, goalTrack) {
+    if (!this.isCloudAuth()) {
+      throw new Error(
+        'Supabase is not configured. Add your project URL and anon key to config.js first.'
+      );
     }
 
-    const newUser = {
-      id: 'usr_' + Date.now(),
-      name: name.trim(),
+    const client = SupabaseApp.getClient();
+    const cleanEmail = email.trim().toLowerCase();
+    const { data, error } = await client.auth.signUp({
       email: cleanEmail,
-      password: this.simpleHash(password),
-      goalTrack: goalTrack || 'General Growth',
-      createdAt: new Date().toISOString()
-    };
+      password,
+      options: {
+        data: {
+          full_name: name.trim(),
+          goal_track: goalTrack || 'General Growth'
+        }
+      }
+    });
 
-    db[cleanEmail] = newUser;
-    this.saveUsersDB(db);
+    if (error) throw new Error(error.message);
 
-    // Auto login after sign up
-    const sessionUser = {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      goalTrack: newUser.goalTrack
-    };
-    this.saveSession(sessionUser);
-    return sessionUser;
-  },
-
-  // ----------------------------------------------------
-  // Login Routine
-  // ----------------------------------------------------
-  login: function (email, password) {
-    const db = this.getUsersDB();
-    const cleanEmail = email.trim().toLowerCase();
-    const user = db[cleanEmail];
-
-    if (!user) {
-      throw new Error('No account found with this email address.');
+    if (!data.session) {
+      return {
+        needsConfirmation: true,
+        email: cleanEmail
+      };
     }
 
-    if (user.password !== this.simpleHash(password)) {
-      throw new Error('Incorrect password. Please try again.');
-    }
-
-    const sessionUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      goalTrack: user.goalTrack
-    };
-
-    this.saveSession(sessionUser);
-    return sessionUser;
+    await this.applySession(data.session);
+    return { needsConfirmation: false, user: this.currentUser };
   },
 
-  // Logout Routine
-  logout: function () {
-    this.saveSession(null);
+  login: async function (email, password) {
+    if (!this.isCloudAuth()) {
+      throw new Error(
+        'Supabase is not configured. Add your project URL and anon key to config.js first.'
+      );
+    }
+
+    const client = SupabaseApp.getClient();
+    const { data, error } = await client.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password
+    });
+
+    if (error) throw new Error(error.message);
+    await this.applySession(data.session);
+    return this.currentUser;
+  },
+
+  logout: async function () {
+    if (this.isCloudAuth()) {
+      const { error } = await SupabaseApp.getClient().auth.signOut();
+      if (error) console.error('[Auth] signOut', error);
+    }
+    this.currentUser = null;
+    this.updateUserUI();
+    if (window.App?.onAuthUserChanged) {
+      await window.App.onAuthUserChanged(null);
+    }
     window.App?.showToast?.('Logged out. Switched to Guest Mode.', 'success');
   },
 
-  // Basic client-side string hash helper for mock security
-  simpleHash: function (str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash |= 0;
-    }
-    return 'h_' + Math.abs(hash).toString(36);
-  },
-
-  // ----------------------------------------------------
-  // UI & Event Bindings
-  // ----------------------------------------------------
   updateUserUI: function () {
-    const userPill = document.getElementById('user-profile-pill');
     const userNameEl = document.getElementById('user-display-name');
     const userAvatarEl = document.getElementById('user-avatar-initial');
     const guestNotice = document.getElementById('guest-mode-banner');
+    const cloudBadge = document.getElementById('cloud-status-text');
 
     if (this.currentUser) {
-      if (userPill) userPill.classList.remove('hidden');
       if (userNameEl) userNameEl.textContent = this.currentUser.name;
       if (userAvatarEl) {
-        const initials = this.currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        const initials = this.currentUser.name
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2);
         userAvatarEl.textContent = initials || 'U';
       }
       if (guestNotice) guestNotice.classList.add('hidden');
+      if (cloudBadge) cloudBadge.textContent = 'Cloud sync on';
     } else {
-      if (userPill) userPill.classList.remove('hidden'); // Show Login/Signup trigger
       if (userNameEl) userNameEl.textContent = 'Guest User (Login)';
       if (userAvatarEl) userAvatarEl.textContent = '🔑';
       if (guestNotice) guestNotice.classList.remove('hidden');
+      if (cloudBadge) {
+        cloudBadge.textContent = this.isCloudAuth()
+          ? 'Local guest mode'
+          : 'Supabase not configured';
+      }
     }
   },
 
   bindAuthEvents: function () {
-    // Open Auth Modal
-    const profilePill = document.getElementById('user-profile-pill');
     const authModal = document.getElementById('auth-modal-backdrop');
     const profileModal = document.getElementById('profile-modal-backdrop');
-    const closeAuthModal = document.getElementById('btn-close-auth-modal');
-    const closeProfileModal = document.getElementById('btn-close-profile-modal');
 
-    if (profilePill) {
-      profilePill.addEventListener('click', () => {
-        if (this.currentUser) {
-          this.openProfileModal();
-        } else {
-          this.openAuthModal();
-        }
-      });
-    }
+    document.getElementById('user-profile-pill')?.addEventListener('click', () => {
+      if (this.currentUser) this.openProfileModal();
+      else this.openAuthModal();
+    });
 
-    if (closeAuthModal && authModal) {
-      closeAuthModal.addEventListener('click', () => {
-        authModal.classList.remove('active');
-      });
-    }
+    document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => {
+      authModal?.classList.remove('active');
+    });
 
-    if (closeProfileModal && profileModal) {
-      closeProfileModal.addEventListener('click', () => {
-        profileModal.classList.remove('active');
-      });
-    }
+    document.getElementById('btn-close-profile-modal')?.addEventListener('click', () => {
+      profileModal?.classList.remove('active');
+    });
 
-    // Auth Modal Tab Switcher (Login vs Sign Up)
     const tabLogin = document.getElementById('auth-tab-login');
     const tabSignup = document.getElementById('auth-tab-signup');
     const formLogin = document.getElementById('auth-form-login');
     const formSignup = document.getElementById('auth-form-signup');
 
-    if (tabLogin && tabSignup && formLogin && formSignup) {
-      tabLogin.addEventListener('click', () => {
-        tabLogin.classList.add('active');
-        tabSignup.classList.remove('active');
-        formLogin.classList.remove('hidden');
-        formSignup.classList.add('hidden');
-      });
+    tabLogin?.addEventListener('click', () => {
+      tabLogin.classList.add('active');
+      tabSignup?.classList.remove('active');
+      formLogin?.classList.remove('hidden');
+      formSignup?.classList.add('hidden');
+    });
 
-      tabSignup.addEventListener('click', () => {
-        tabSignup.classList.add('active');
-        tabLogin.classList.remove('active');
-        formSignup.classList.remove('hidden');
-        formLogin.classList.add('hidden');
-      });
-    }
+    tabSignup?.addEventListener('click', () => {
+      tabSignup.classList.add('active');
+      tabLogin?.classList.remove('active');
+      formSignup?.classList.remove('hidden');
+      formLogin?.classList.add('hidden');
+    });
 
-    // Submit Login Form
-    if (formLogin) {
-      formLogin.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email')?.value;
-        const pass = document.getElementById('login-password')?.value;
-        const errorEl = document.getElementById('login-error-msg');
+    formLogin?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('login-error-msg');
+      if (errorEl) errorEl.classList.add('hidden');
 
-        if (errorEl) errorEl.classList.add('hidden');
-
-        try {
-          this.login(email, pass);
-          authModal.classList.remove('active');
-          if (window.App) window.App.showToast(`Welcome back, ${this.currentUser.name}!`, 'success');
-        } catch (err) {
-          if (errorEl) {
-            errorEl.textContent = err.message;
-            errorEl.classList.remove('hidden');
-          }
+      try {
+        await this.login(
+          document.getElementById('login-email')?.value,
+          document.getElementById('login-password')?.value
+        );
+        authModal?.classList.remove('active');
+        window.App?.showToast?.(`Welcome back, ${this.currentUser.name}!`, 'success');
+      } catch (err) {
+        if (errorEl) {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
         }
-      });
-    }
+      }
+    });
 
-    // Submit Sign Up Form
-    if (formSignup) {
-      formSignup.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('signup-name')?.value;
-        const email = document.getElementById('signup-email')?.value;
-        const pass = document.getElementById('signup-password')?.value;
-        const goal = document.getElementById('signup-goal')?.value;
-        const errorEl = document.getElementById('signup-error-msg');
+    formSignup?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('signup-error-msg');
+      if (errorEl) errorEl.classList.add('hidden');
 
-        if (errorEl) errorEl.classList.add('hidden');
+      try {
+        const result = await this.signUp(
+          document.getElementById('signup-name')?.value,
+          document.getElementById('signup-email')?.value,
+          document.getElementById('signup-password')?.value,
+          document.getElementById('signup-goal')?.value
+        );
 
-        try {
-          this.signUp(name, email, pass, goal);
-          authModal.classList.remove('active');
-          if (window.App) window.App.showToast(`Account created! Welcome, ${this.currentUser.name}!`, 'success');
-        } catch (err) {
-          if (errorEl) {
-            errorEl.textContent = err.message;
-            errorEl.classList.remove('hidden');
-          }
+        authModal?.classList.remove('active');
+
+        if (result.needsConfirmation) {
+          window.App?.showToast?.(
+            `Check ${result.email} to confirm your account, then log in.`,
+            'warning'
+          );
+        } else {
+          window.App?.showToast?.(
+            `Account created! Welcome, ${this.currentUser.name}!`,
+            'success'
+          );
         }
-      });
-    }
+      } catch (err) {
+        if (errorEl) {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
+        }
+      }
+    });
 
-    // Logout Button in Profile Modal
-    const logoutBtn = document.getElementById('btn-profile-logout');
-    if (logoutBtn && profileModal) {
-      logoutBtn.addEventListener('click', () => {
-        profileModal.classList.remove('active');
-        this.logout();
-      });
-    }
+    document.getElementById('btn-profile-logout')?.addEventListener('click', async () => {
+      profileModal?.classList.remove('active');
+      await this.logout();
+    });
 
-    // Guest Banner Sign In Link Trigger
-    const guestSignInBtn = document.getElementById('btn-guest-signin-link');
-    if (guestSignInBtn) {
-      guestSignInBtn.addEventListener('click', () => {
-        this.openAuthModal();
-      });
-    }
+    document.getElementById('btn-guest-signin-link')?.addEventListener('click', () => {
+      this.openAuthModal();
+    });
   },
 
   openAuthModal: function () {
-    const authModal = document.getElementById('auth-modal-backdrop');
-    if (authModal) authModal.classList.add('active');
+    if (!this.isCloudAuth()) {
+      window.App?.showToast?.(
+        'Add your Supabase URL and anon key to config.js to enable accounts.',
+        'warning'
+      );
+    }
+    document.getElementById('auth-modal-backdrop')?.classList.add('active');
   },
 
   openProfileModal: function () {
-    const profileModal = document.getElementById('profile-modal-backdrop');
-    if (!profileModal || !this.currentUser) return;
-
+    if (!this.currentUser) return;
     document.getElementById('profile-name-text').textContent = this.currentUser.name;
     document.getElementById('profile-email-text').textContent = this.currentUser.email;
-    document.getElementById('profile-goal-text').textContent = this.currentUser.goalTrack || 'General Growth';
-
-    profileModal.classList.add('active');
+    document.getElementById('profile-goal-text').textContent =
+      this.currentUser.goalTrack || 'General Growth';
+    document.getElementById('profile-modal-backdrop')?.classList.add('active');
   }
 };
-
-// Initialize Auth Engine when DOM loads
-document.addEventListener('DOMContentLoaded', () => {
-  window.AuthManager.init();
-});

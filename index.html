@@ -8,9 +8,6 @@
   
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="style.css">
-  
-  <!-- Chart.js for Analytics Visualization -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -83,7 +80,7 @@
 
   <!-- Guest Mode Banner -->
   <div class="guest-banner" id="guest-mode-banner">
-    <span>💡 You are using <strong>Guest Mode</strong>. Data is stored in this browser.</span>
+    <span>💡 You are using <strong>Guest Mode</strong>. Data stays in this browser until you log in. <span id="cloud-status-text">Checking cloud…</span></span>
     <button class="btn btn-primary" id="btn-guest-signin-link" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Create Account / Login</button>
   </div>
 
@@ -624,7 +621,11 @@
     </div>
   </div>
 
-  <!-- JS Application Scripts -->
+  <!-- JS: Chart.js + Supabase + App -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabaseClient.js"></script>
   <script src="sampleData.js"></script>
   <script src="analytics.js"></script>
   <script src="auth.js"></script>

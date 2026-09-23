@@ -1,116 +1,115 @@
-# Complete Deployment & Hosting Roadmap for Daily Progress Tracker
+# Deploy Daily Progress Tracker (Vercel + Supabase)
 
-This guide provides step-by-step instructions to deploy your **Daily Progress Tracker** web application to production. Since the application is built with HTML5, CSS3, ES6 JavaScript, and Chart.js, it can be hosted for **100% free** on any static web host, or upgraded to a cloud database backend.
+Your app is a static site. **Vercel** hosts it; **Supabase** handles auth and cloud log sync. Without Supabase keys, the app still works in **guest / localStorage** mode.
 
 ---
 
-## Roadmap Overview
+## What was added in the codebase
 
+| File | Purpose |
+|------|---------|
+| `supabase/schema.sql` | Tables, RLS policies, profile trigger |
+| `config.js` / `config.example.js` | Supabase URL + anon key |
+| `supabaseClient.js` | Creates the browser client |
+| `auth.js` | Supabase email/password auth |
+| `app.js` | Cloud load / upsert / clear + guest fallback |
+| `scripts/write-config.js` | Builds `config.js` from Vercel env vars |
+| `vercel.json` | Static deploy settings |
+
+---
+
+## Step 1 — Create a Supabase project
+
+1. Open [https://supabase.com](https://supabase.com) and create a project.
+2. Wait until the database is ready.
+3. Go to **Project Settings → API** and copy:
+   - **Project URL**
+   - **anon public** key  
+
+   Never put the **service_role** key in this frontend.
+
+---
+
+## Step 2 — Run the SQL schema
+
+1. In Supabase, open **SQL Editor → New query**.
+2. Paste everything from `supabase/schema.sql`.
+3. Click **Run**.
+
+This creates `profiles`, `daily_logs`, RLS policies, and the signup profile trigger.
+
+---
+
+## Step 3 — Enable Email Auth
+
+1. **Authentication → Providers → Email** → enable.
+2. For testing, you can turn **off** “Confirm email” under Auth settings so signup logs you in immediately.
+3. For production, turn confirmation **on**, then add your site URL under  
+   **Authentication → URL Configuration**:
+   - Site URL: `https://your-app.vercel.app`
+   - Redirect URLs: `https://your-app.vercel.app/**`
+
+---
+
+## Step 4 — Add keys locally
+
+Edit `config.js`:
+
+```js
+window.SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+window.SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
 ```
-[Local Codebase] ──> [Option 1: GitHub Pages] ──> Free Public URL
-                 ──> [Option 2: Vercel / Netlify] ──> Custom Domain + Auto CI/CD
-                 ──> [Option 3: Cloud Upgrade] ──> Supabase / Firebase Backend
-```
+
+Open `index.html` in a browser (or `npm start`).  
+Guest mode still works; **Login / Create Account** uses Supabase.
 
 ---
 
-## Option 1: GitHub Pages (Recommended - Free & Instant)
+## Step 5 — Deploy on Vercel
 
-GitHub Pages hosts static websites directly from your GitHub repository.
+1. Push this folder to GitHub (ideally its own repo).
+2. Import the repo in [Vercel](https://vercel.com).
+3. Framework: **Other**. Build command is already in `vercel.json` (`npm run build`).
+4. Add Environment Variables:
+   - `SUPABASE_URL` = your project URL  
+   - `SUPABASE_ANON_KEY` = your anon key  
+5. Deploy.
 
-### Step 1: Initialize Git in your Workspace
-Open PowerShell or Terminal in your project directory:
-```bash
-git init
-git add .
-git commit -m "Initial commit: Daily Progress Tracker web app"
-```
-
-### Step 2: Create a Repository on GitHub
-1. Go to [GitHub.com](https://github.com) and click **New Repository**.
-2. Name your repository (e.g., `daily-progress-tracker`).
-3. Leave it Public and click **Create Repository**.
-
-### Step 3: Push Code to GitHub
-Execute the following commands in your terminal (replace `<your-username>` with your GitHub username):
-```bash
-git branch -M main
-git remote add origin https://github.com/<your-username>/daily-progress-tracker.git
-git push -u origin main
-```
-
-### Step 4: Enable GitHub Pages
-1. On GitHub, navigate to your repository **Settings**.
-2. Scroll down to the **Pages** section on the left sidebar.
-3. Under **Build and deployment** -> **Source**, select **Deploy from a branch**.
-4. Set Branch to `main` and Folder to `/ (root)`.
-5. Click **Save**.
-
-🎉 Within 1-2 minutes, your website will be live at:
-`https://<your-username>.github.io/daily-progress-tracker/`
+The build script writes `config.js` from those env vars on every deploy.
 
 ---
 
-## Option 2: Vercel or Netlify Deployment
+## How data works
 
-Vercel and Netlify offer ultra-fast global CDN hosting, automatic SSL certificates, and custom domain support.
+| Mode | Auth | Where logs live |
+|------|------|-----------------|
+| Guest | None | Browser `localStorage` |
+| Logged in | Supabase Auth | `daily_logs` table (+ local cache) |
 
-### Deploying via Vercel (Command Line)
-1. Install Vercel CLI:
-   ```bash
-   npm install -g vercel
-   ```
-2. Run the deployment command in your project folder:
-   ```bash
-   vercel
-   ```
-3. Follow the prompts (press `Enter` for defaults). Your project will deploy instantly and produce a `.vercel.app` URL.
+On first login, if guest data exists and the cloud account is empty, guest logs are **migrated** automatically.
 
-### Deploying via Netlify (Drag & Drop)
-1. Sign in to [Netlify.com](https://www.netlify.com).
-2. Go to the **Sites** tab and select **Add new site** -> **Deploy manually**.
-3. Drag and drop the folder `c:\Users\Pakshal Jain\ZMyCodeSpace\github\Progress Tracker` into the browser upload box.
-4. Your app is live instantly!
+Analytics still reads `App.logs` — no chart changes needed.
 
 ---
 
-## Option 3: Upgrading to Cloud Backend (Supabase / Firebase)
+## Quick test checklist
 
-Currently, user authentication and daily logs are stored safely in browser `localStorage`. To sync logs across multiple devices (e.g. mobile phone and laptop), you can connect a cloud backend.
-
-### 1. Supabase Integration (PostgreSQL + Auth)
-1. Create a free project at [Supabase.com](https://supabase.com).
-2. Create a `daily_logs` table in Supabase SQL editor:
-   ```sql
-   create table daily_logs (
-     id uuid default gen_random_uuid() primary key,
-     user_id uuid references auth.users not null,
-     log_date date not null,
-     morning_data jsonb,
-     night_data jsonb,
-     created_at timestamp default now(),
-     unique(user_id, log_date)
-   );
-   ```
-3. Add the Supabase JS SDK CDN script to `index.html`:
-   ```html
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-   ```
-4. Replace `localStorage.setItem` in `app.js` with `supabase.from('daily_logs').upsert(...)`.
-
-### 2. Firebase Integration (Firestore + Auth)
-1. Create a project at [Firebase Console](https://console.firebase.google.com).
-2. Enable **Email/Password Authentication** under Authentication.
-3. Enable **Cloud Firestore Database**.
-4. Import Firebase SDK script in `index.html` and link `db.collection('logs').doc(user.uid).collection('days').doc(dateStr).set(...)`.
+- [ ] SQL ran without errors  
+- [ ] `config.js` has real URL + anon key  
+- [ ] Sign up a user  
+- [ ] Log a day → refresh → data still there  
+- [ ] Log out → guest mode  
+- [ ] Log in on another browser → same logs  
+- [ ] Analytics shows KPIs/charts for cloud data  
 
 ---
 
-## Summary Checklist for Deployment
+## Troubleshooting
 
-- [x] Code audited for missing selectors & error safety.
-- [x] Responsive layout verified for mobile & desktop screens.
-- [x] Auth system (Signup/Login/Guest Mode) integrated.
-- [x] Demo dataset pre-filled for testing.
-- [ ] Push code to GitHub repository.
-- [ ] Enable GitHub Pages / Vercel deployment.
+| Issue | Fix |
+|-------|-----|
+| “Supabase is not configured” | Fill `config.js` or Vercel env vars, redeploy |
+| Signup works but no session | Disable email confirm for testing, or confirm via email |
+| `new row violates row-level security` | Re-run `schema.sql` policies; ensure user is logged in |
+| Empty logs after login | Check **Table Editor → daily_logs**; confirm RLS allows select |
+| CORS / blocked | Confirm Site URL + Redirect URLs include your Vercel domain |

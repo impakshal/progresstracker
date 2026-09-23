@@ -17,15 +17,18 @@ window.App = {
 
   init: function () {
     this.loadTheme();
-    this.loadLogsFromStorage();
     this.bindEvents();
     this.setupDateNavigator();
     this.loadDailyLog(this.activeDate);
     this.updateStreakBadge();
   },
 
-  onAuthUserChanged: function () {
-    this.loadLogsFromStorage();
+  isCloudMode: function () {
+    return !!(window.SupabaseApp?.isReady() && window.AuthManager?.getUserId?.());
+  },
+
+  onAuthUserChanged: async function () {
+    await this.loadLogsFromStorage();
     this.loadDailyLog(this.activeDate);
     this.updateStreakBadge();
     this.refreshActiveSecondaryView();
@@ -97,14 +100,14 @@ window.App = {
     });
   },
 
-  loadSampleData: function () {
+  loadSampleData: async function () {
     if (!window.SampleDataGenerator?.generate30Days) {
       this.showToast('Demo data generator is unavailable.', 'error');
       return;
     }
 
     this.logs = SampleDataGenerator.generate30Days();
-    this.saveLogsToStorage();
+    await this.saveLogsToStorage({ mode: 'replace' });
     this.loadDailyLog(this.activeDate);
     this.updateStreakBadge();
     this.showToast('Loaded 30 days of sample tracker data!', 'success');
@@ -116,11 +119,11 @@ window.App = {
     }
   },
 
-  clearAllData: function () {
+  clearAllData: async function () {
     if (!confirm('Clear all progress logs for this account? This cannot be undone.')) return;
 
     this.logs = {};
-    this.saveLogsToStorage();
+    await this.saveLogsToStorage({ mode: 'clear' });
     this.loadDailyLog(this.activeDate);
     this.updateStreakBadge();
     this.showToast('All progress logs cleared.', 'error');
@@ -150,23 +153,175 @@ window.App = {
     return STORAGE_KEY;
   },
 
-  loadLogsFromStorage: function () {
+  writeLocalCache: function () {
     try {
-      const raw = localStorage.getItem(this.getStorageKey());
-      this.logs = raw ? JSON.parse(raw) : {};
+      localStorage.setItem(this.getStorageKey(), JSON.stringify(this.logs));
     } catch (e) {
-      console.error('Error loading logs from storage', e);
-      this.logs = {};
+      console.error('Error writing local cache', e);
     }
   },
 
-  saveLogsToStorage: function () {
+  readLocalCache: function () {
     try {
-      localStorage.setItem(this.getStorageKey(), JSON.stringify(this.logs));
-      this.updateStreakBadge();
+      const raw = localStorage.getItem(this.getStorageKey());
+      return raw ? JSON.parse(raw) : {};
     } catch (e) {
-      console.error('Error saving logs to storage', e);
-      this.showToast('Error saving data to browser storage', 'error');
+      console.error('Error reading local cache', e);
+      return {};
+    }
+  },
+
+  rowToLog: function (row) {
+    const dateStr = row.log_date;
+    return {
+      id: dateStr,
+      date: dateStr,
+      morning: row.morning_data || {},
+      night: row.night_data || {},
+      updatedAt: row.updated_at || new Date().toISOString()
+    };
+  },
+
+  logToRow: function (dateStr, log, userId) {
+    return {
+      user_id: userId,
+      log_date: dateStr,
+      morning_data: log.morning || {},
+      night_data: log.night || {},
+      updated_at: log.updatedAt || new Date().toISOString()
+    };
+  },
+
+  loadLogsFromStorage: async function () {
+    if (!this.isCloudMode()) {
+      this.logs = this.readLocalCache();
+      return;
+    }
+
+    const client = SupabaseApp.getClient();
+    const userId = AuthManager.getUserId();
+
+    const { data, error } = await client
+      .from('daily_logs')
+      .select('log_date, morning_data, night_data, updated_at')
+      .eq('user_id', userId)
+      .order('log_date', { ascending: true });
+
+    if (error) {
+      console.error('Error loading cloud logs', error);
+      this.showToast('Could not load cloud logs — using local cache.', 'warning');
+      this.logs = this.readLocalCache();
+      return;
+    }
+
+    const mapped = {};
+    (data || []).forEach((row) => {
+      mapped[row.log_date] = this.rowToLog(row);
+    });
+
+    // First login: push any guest-local logs into the cloud
+    const guestRaw = localStorage.getItem(STORAGE_KEY);
+    if (guestRaw && Object.keys(mapped).length === 0) {
+      try {
+        const guestLogs = JSON.parse(guestRaw);
+        if (guestLogs && Object.keys(guestLogs).length > 0) {
+          await this.migrateGuestLogs(guestLogs, userId);
+          Object.assign(mapped, guestLogs);
+          localStorage.removeItem(STORAGE_KEY);
+          this.showToast('Migrated guest logs to your cloud account.', 'success');
+        }
+      } catch (e) {
+        console.warn('Guest migration skipped', e);
+      }
+    }
+
+    this.logs = mapped;
+    this.writeLocalCache();
+  },
+
+  migrateGuestLogs: async function (guestLogs, userId) {
+    const client = SupabaseApp.getClient();
+    const rows = Object.keys(guestLogs).map((dateStr) =>
+      this.logToRow(dateStr, guestLogs[dateStr], userId)
+    );
+    if (!rows.length) return;
+
+    const { error } = await client.from('daily_logs').upsert(rows, {
+      onConflict: 'user_id,log_date'
+    });
+    if (error) throw error;
+  },
+
+  upsertCloudDay: async function (dateStr) {
+    const client = SupabaseApp.getClient();
+    const userId = AuthManager.getUserId();
+    const log = this.logs[dateStr];
+
+    if (!log) {
+      const { error } = await client
+        .from('daily_logs')
+        .delete()
+        .eq('user_id', userId)
+        .eq('log_date', dateStr);
+      if (error) throw error;
+      return;
+    }
+
+    const { error } = await client.from('daily_logs').upsert(
+      this.logToRow(dateStr, log, userId),
+      { onConflict: 'user_id,log_date' }
+    );
+    if (error) throw error;
+  },
+
+  replaceAllCloudLogs: async function () {
+    const client = SupabaseApp.getClient();
+    const userId = AuthManager.getUserId();
+
+    const { error: delError } = await client
+      .from('daily_logs')
+      .delete()
+      .eq('user_id', userId);
+    if (delError) throw delError;
+
+    const rows = Object.keys(this.logs).map((dateStr) =>
+      this.logToRow(dateStr, this.logs[dateStr], userId)
+    );
+    if (!rows.length) return;
+
+    const { error } = await client.from('daily_logs').upsert(rows, {
+      onConflict: 'user_id,log_date'
+    });
+    if (error) throw error;
+  },
+
+  clearCloudLogs: async function () {
+    const client = SupabaseApp.getClient();
+    const userId = AuthManager.getUserId();
+    const { error } = await client.from('daily_logs').delete().eq('user_id', userId);
+    if (error) throw error;
+  },
+
+  saveLogsToStorage: async function (options = {}) {
+    const mode = options.mode || 'day';
+    const dateStr = options.date || this.activeDate;
+
+    this.writeLocalCache();
+    this.updateStreakBadge();
+
+    if (!this.isCloudMode()) return;
+
+    try {
+      if (mode === 'clear') {
+        await this.clearCloudLogs();
+      } else if (mode === 'replace') {
+        await this.replaceAllCloudLogs();
+      } else {
+        await this.upsertCloudDay(dateStr);
+      }
+    } catch (e) {
+      console.error('Cloud save failed', e);
+      this.showToast('Saved locally, but cloud sync failed.', 'warning');
     }
   },
 
@@ -339,10 +494,10 @@ window.App = {
 
   scheduleSave: function () {
     clearTimeout(this._saveTimer);
-    this._saveTimer = setTimeout(() => this.saveCurrentLogFromDOM(), 250);
+    this._saveTimer = setTimeout(() => this.saveCurrentLogFromDOM(), this.isCloudMode() ? 600 : 250);
   },
 
-  saveCurrentLogFromDOM: function () {
+  saveCurrentLogFromDOM: async function () {
     const dateStr = this.activeDate;
     const targets = [];
     const completedTargets = [];
@@ -391,7 +546,7 @@ window.App = {
       this.logs[dateStr] = log;
     }
 
-    this.saveLogsToStorage();
+    await this.saveLogsToStorage({ mode: 'day', date: dateStr });
     this.updateHoursVariance();
     this.updateCompletionGauge();
   },
@@ -653,12 +808,12 @@ window.App = {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const imported = JSON.parse(e.target.result);
         if (imported && typeof imported === 'object' && !Array.isArray(imported)) {
           this.logs = { ...this.logs, ...imported };
-          this.saveLogsToStorage();
+          await this.saveLogsToStorage({ mode: 'replace' });
           this.loadDailyLog(this.activeDate);
           this.refreshActiveSecondaryView();
           this.showToast('Imported tracker logs successfully!', 'success');
@@ -691,6 +846,11 @@ window.App = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  window.App.init();
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.AuthManager.init();
+  // Load guest/local logs if still logged out after auth init
+  if (!AuthManager.currentUser) {
+    await App.loadLogsFromStorage();
+  }
+  App.init();
 });
