@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Progress Tracker | Discipline Today · Brighter Tomorrow</title>
+  <meta name="description" content="A comprehensive daily progress tracker web app to log morning expectations, night reality, track study hours, target completion, and analyze long-term discipline.">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Chart.js for Analytics Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- App Header & Navbar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">
+            DISCIPLINE TODAY
+          </h1>
+          <p class="brand-subtitle">Small Steps Every Day Lead to Big Results</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-tab="logger" id="nav-tab-logger">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          Daily Logger
+        </button>
+        <button class="nav-tab" data-tab="analytics" id="nav-tab-analytics">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Analytics & Insights
+        </button>
+        <button class="nav-tab" data-tab="history" id="nav-tab-history">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          History Journal
+        </button>
+      </nav>
+
+      <!-- Utility Action Controls -->
+      <div class="header-actions">
+
+        <!-- User Auth Profile Pill -->
+        <div class="user-profile-pill" id="user-profile-pill" title="Click to view Account / Login">
+          <div class="avatar-circle" id="user-avatar-initial">🔑</div>
+          <span id="user-display-name">Guest Mode</span>
+        </div>
+
+        <div class="streak-badge" id="streak-badge-container">
+          <span>🔥</span>
+          <span id="streak-count-display">0 Days</span>
+        </div>
+
+        <button class="btn-icon" id="btn-toggle-theme" title="Toggle Light/Dark Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+
+        <button class="btn btn-secondary" id="btn-load-sample-data" title="Load 30 Days Demo Dataset">
+          ⚡ Demo Data
+        </button>
+
+        <button class="btn btn-secondary" id="btn-export-json" title="Download JSON Backup">
+          💾 Backup
+        </button>
+
+        <input type="file" id="file-import-input" accept=".json" class="hidden">
+        <button class="btn btn-secondary" id="btn-import-json" title="Restore Data from JSON">
+          📥 Restore
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Guest Mode Banner -->
+  <div class="guest-banner" id="guest-mode-banner">
+    <span>💡 You are using <strong>Guest Mode</strong>. Data is stored in this browser.</span>
+    <button class="btn btn-primary" id="btn-guest-signin-link" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Create Account / Login</button>
+  </div>
+
+  <!-- Date Navigation Bar -->
+  <div class="date-navigator">
+    <div class="date-nav-container">
+      <div class="date-controls">
+        <button class="btn-icon" id="btn-prev-day" title="Previous Day">◀</button>
+        <input type="date" id="date-picker" class="date-picker-input">
+        <button class="btn-icon" id="btn-next-day" title="Next Day">▶</button>
+        <button class="btn btn-secondary" id="btn-today" style="padding: 0.35rem 0.8rem; font-size: 0.85rem;">Today</button>
+      </div>
+
+      <div class="day-pills" id="day-pills-container">
+        <!-- Day pills (S M T W T F S) populated via JS -->
+      </div>
+
+      <!-- Mode View Toggle (Morning Expectations / Night Reality / All) -->
+      <div class="mode-toggle-group" id="logger-mode-toggle">
+        <button class="mode-btn morning" data-mode="morning">🌅 Morning Plan</button>
+        <button class="mode-btn night" data-mode="night">🌙 Night Reality</button>
+        <button class="mode-btn active all" data-mode="all">📊 Full View</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- ============================================== -->
+    <!-- TAB 1: DAILY LOGGER VIEW -->
+    <!-- ============================================== -->
+    <div id="view-logger" class="tab-view fade-in">
+      
+      <!-- Inspirational Motto Banner -->
+      <div class="motto-banner">
+        <div>
+          <div class="motto-text">“Small Steps Every Day Lead to Big Results.”</div>
+          <div class="motto-sub">Discipline Today · Brighter Tomorrow</div>
+        </div>
+        <div class="motto-stickers">
+          <button class="btn btn-primary" id="btn-load-demo-motto" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; transform: rotate(-1deg);">⚡ Load Demo History</button>
+          <div class="sticker-badge">Same Effort, A Brighter You ♡</div>
+          <div class="sticker-badge">1% Improvement Every Day = 37x a Year 📈</div>
+        </div>
+      </div>
+
+      <!-- 12-Column Blueprint Grid -->
+      <div class="blueprint-grid">
+
+        <!-- CARD 1: TODAY'S TOP TARGETS -->
+        <div class="card col-6 morning-card night-card" id="card-targets">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">1</span>
+              <span>TODAY'S TOP TARGETS</span>
+            </div>
+            <div class="card-subtitle">Focus on what truly matters</div>
+          </div>
+          <div class="targets-list" id="targets-list-container">
+            <!-- 10 Target Items Rendered Dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- CARD 2: STUDY HOURS -->
+        <div class="card col-3 morning-card night-card" id="card-hours">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">2</span>
+              <span>STUDY HOURS</span>
+            </div>
+            <div class="card-subtitle">Consistency builds success</div>
+          </div>
+          <div class="hours-container">
+            <div class="hours-box morning-card">
+              <div class="hours-label">Planned Hours</div>
+              <div class="hours-input-wrapper">
+                <input type="number" step="0.5" min="0" max="24" id="morning-planned-hours" class="hours-input" value="0">
+                <span class="hours-unit">hrs</span>
+              </div>
+            </div>
+            <div class="hours-box night-card">
+              <div class="hours-label">Completed Hours</div>
+              <div class="hours-input-wrapper">
+                <input type="number" step="0.5" min="0" max="24" id="night-completed-hours" class="hours-input" value="0">
+                <span class="hours-unit">hrs</span>
+              </div>
+            </div>
+          </div>
+          <div id="hours-diff-display" class="hours-diff" style="text-align: center; margin-top: 0.8rem;">
+            On target
+          </div>
+        </div>
+
+        <!-- CARD 3: SUBJECT / TOPIC -->
+        <div class="card col-3 morning-card" id="card-subjects">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">3</span>
+              <span>SUBJECT / TOPIC</span>
+            </div>
+            <div class="card-subtitle">What did you focus on today?</div>
+          </div>
+          <textarea id="morning-subjects" class="form-textarea" placeholder="e.g. Physics: Electromagnetism&#10;Math: Integration by Parts&#10;Chemistry: Organic Reactions"></textarea>
+        </div>
+
+        <!-- CARD 4: STUDY RESOURCES & PRACTICE -->
+        <div class="card col-4 morning-card" id="card-resources">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">4</span>
+              <span>STUDY RESOURCES & PRACTICE</span>
+            </div>
+            <div class="card-subtitle">Track what you used today</div>
+          </div>
+          <div class="checkbox-grid" id="morning-resources-group">
+            <label class="check-label">
+              <input type="checkbox" value="NCERT / Standard Books"> NCERT / Standard Books
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Online Lecture"> Online Lecture
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="PYQs Practice"> PYQs Practice
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Test Series / Practice Questions"> Test Series / Practice Questions
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Current Affairs (Newspaper / Magazine)"> Current Affairs Digest
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Value Addition (Notes making / Summary)"> Value Addition / Notes
+            </label>
+          </div>
+        </div>
+
+        <!-- CARD 5: REVISION -->
+        <div class="card col-4 morning-card" id="card-revision">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">5</span>
+              <span>REVISION</span>
+            </div>
+            <div class="card-subtitle">Retain & consolidate</div>
+          </div>
+          <div class="checkbox-grid" id="morning-revision-group">
+            <label class="check-label">
+              <input type="checkbox" value="Class notes"> Class notes
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Short notes"> Short notes
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="PYQs revision"> PYQs revision
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Current affairs revision"> Current affairs revision
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Important concepts review"> Important concepts review
+            </label>
+          </div>
+        </div>
+
+        <!-- CARD 6: CURRENT AFFAIRS -->
+        <div class="card col-4 morning-card" id="card-current-affairs">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">6</span>
+              <span>CURRENT AFFAIRS</span>
+            </div>
+            <div class="card-subtitle">Daily awareness</div>
+          </div>
+          <div class="checkbox-grid" id="morning-current-affairs-group">
+            <label class="check-label">
+              <input type="checkbox" value="Newspaper"> Newspaper (The Hindu / Express)
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Monthly magazine"> Monthly magazine
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="PIB / Govt. schemes"> PIB / Govt. schemes
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="Important topics noted"> Important topics noted
+            </label>
+            <label class="check-label">
+              <input type="checkbox" value="One-pager summary made"> One-pager summary made
+            </label>
+          </div>
+        </div>
+
+        <!-- CARD 7: CHALLENGES & SOLUTIONS -->
+        <div class="card col-6 night-card" id="card-challenges">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">7</span>
+              <span>CHALLENGES & SOLUTIONS</span>
+            </div>
+            <div class="card-subtitle">What slowed you down today? How will you improve?</div>
+          </div>
+          <div class="challenges-grid">
+            <div>
+              <div class="section-label">Challenges</div>
+              <textarea id="night-challenges" class="form-textarea" placeholder="• Felt sleepy after lunch&#10;• Phone distraction during Physics block"></textarea>
+            </div>
+            <div>
+              <div class="section-label">Solutions / Plan for Tomorrow</div>
+              <textarea id="night-solutions" class="form-textarea" placeholder="• Take 15-min power nap&#10;• Put phone in another room"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 8: TARGETS COMPLETED (GAUGE) -->
+        <div class="card col-3 night-card" id="card-gauge">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">8</span>
+              <span>TARGETS COMPLETED</span>
+            </div>
+            <div class="card-subtitle">How much of today's plan did you complete?</div>
+          </div>
+          <div class="completion-gauge-container">
+            <svg class="gauge-svg" viewBox="0 0 120 120">
+              <defs>
+                <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2563eb" />
+                  <stop offset="100%" stop-color="#10b981" />
+                </linearGradient>
+              </defs>
+              <circle class="gauge-bg" cx="60" cy="60" r="54"></circle>
+              <circle class="gauge-fill" id="gauge-fill-circle" cx="60" cy="60" r="54"></circle>
+            </svg>
+            <div class="gauge-center-text">
+              <div class="gauge-percent" id="gauge-percent-text">0%</div>
+              <div class="gauge-subtext" id="gauge-ratio-text">0 / 10</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 9: DAILY AFFIRMATION -->
+        <div class="card col-3 morning-card" id="card-affirmation">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">9</span>
+              <span>DAILY AFFIRMATION</span>
+            </div>
+            <div class="card-subtitle">Say it. Believe it. Become it.</div>
+          </div>
+          <textarea id="morning-affirmation" class="form-textarea" placeholder="Write your morning affirmation...&#10;e.g. I am focused, calm, and relentless in pursuing my goals."></textarea>
+        </div>
+
+        <!-- CARD 10: WHAT I LEARNED TODAY -->
+        <div class="card col-6 night-card" id="card-learned">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">10</span>
+              <span>WHAT I LEARNED TODAY</span>
+            </div>
+            <div class="card-subtitle">New concepts, insights, or important points</div>
+          </div>
+          <textarea id="night-learned" class="form-textarea" style="min-height: 110px;" placeholder="• Learned shortcut for integration by parts&#10;• Understood Faraday's law key applications"></textarea>
+        </div>
+
+        <!-- CARD 11: REFLECTIONS FOR TOMORROW -->
+        <div class="card col-6 night-card" id="card-reflections">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-num">11</span>
+              <span>REFLECTIONS FOR TOMORROW</span>
+            </div>
+            <div class="card-subtitle">Plan better. Do better.</div>
+          </div>
+          <textarea id="night-reflections" class="form-textarea" style="min-height: 110px;" placeholder="• Start with high-priority Physics PYQs right at 8:00 AM&#10;• Revise short notes before sleeping"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- TAB 2: ANALYTICS & INSIGHTS VIEW -->
+    <!-- ============================================== -->
+    <div id="view-analytics" class="tab-view hidden fade-in">
+      <div class="analytics-container">
+        
+        <!-- Analytics Filter & Custom Interval Bar -->
+        <div class="analytics-filter-bar">
+          <div style="flex: 1; min-width: 250px;">
+            <h2 style="font-size: 1.25rem;">Discipline & Progress Analytics</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">Evaluate performance & study trends over any custom date range.</p>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            
+            <!-- Quick Preset Pills -->
+            <div class="mode-toggle-group" id="preset-pills-group">
+              <button class="mode-btn" data-preset="today">Today</button>
+              <button class="mode-btn" data-preset="7days">7 Days</button>
+              <button class="mode-btn active all" data-preset="30days">30 Days</button>
+              <button class="mode-btn" data-preset="thisMonth">This Month</button>
+              <button class="mode-btn" data-preset="lastMonth">Last Month</button>
+              <button class="mode-btn" data-preset="allTime">All Time</button>
+            </div>
+
+            <!-- Custom Date Range Fields (Always Available) -->
+            <div class="custom-range-box" style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); padding: 0.4rem 0.8rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); flex-wrap: wrap;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">Custom Range:</span>
+              <input type="date" id="analytics-start-date" class="date-picker-input" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">to</span>
+              <input type="date" id="analytics-end-date" class="date-picker-input" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">
+              <button class="btn btn-primary" id="btn-apply-custom-range" style="padding: 0.3rem 0.75rem; font-size: 0.85rem;">🔍 Filter Range</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Empty Analytics Data Notice -->
+        <div id="analytics-empty-notice" class="card hidden" style="background-color: var(--brand-light); border-color: var(--brand-primary); padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div>
+            <h3 style="font-size: 1rem; color: var(--brand-primary);">No progress logs found for this date interval</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">Try selecting a different interval or click "⚡ Load Demo Data" to populate sample history for analysis.</p>
+          </div>
+          <button class="btn btn-primary" id="btn-load-demo-analytics">⚡ Load Demo Data</button>
+        </div>
+
+        <!-- KPI Metrics Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-blue">🎯</div>
+            <div>
+              <div class="kpi-value" id="kpi-completion">0%</div>
+              <div class="kpi-title">Avg Target Completion</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-green">⏱️</div>
+            <div>
+              <div class="kpi-value" id="kpi-hours">0h / 0h</div>
+              <div class="kpi-title">Completed vs Planned Hours</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-amber">🔥</div>
+            <div>
+              <div class="kpi-value" id="kpi-streak">0 Days</div>
+              <div class="kpi-title">Current Discipline Streak</div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon kpi-purple">📊</div>
+            <div>
+              <div class="kpi-value" id="kpi-targets">0 / 0</div>
+              <div class="kpi-title">Total Targets Accomplished</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Charts Grid -->
+        <div class="charts-grid">
+          <div class="chart-card col-6">
+            <h3 style="font-size: 1.05rem; margin-bottom: 1rem;">Planned vs Completed Study Hours</h3>
+            <div class="chart-wrapper">
+              <canvas id="chart-hours"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card col-6">
+            <h3 style="font-size: 1.05rem; margin-bottom: 1rem;">Daily Target Completion Rate Trend (%)</h3>
+            <div class="chart-wrapper">
+              <canvas id="chart-trend"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card col-6">
+            <h3 style="font-size: 1.05rem; margin-bottom: 1rem;">Resource & Revision Distribution</h3>
+            <div class="chart-wrapper">
+              <canvas id="chart-resources"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card col-6">
+            <h3 style="font-size: 1.05rem; margin-bottom: 1rem;">Subject Focus Hours Breakdown</h3>
+            <div class="chart-wrapper">
+              <canvas id="chart-subjects"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- GitHub Style Calendar Heatmap Card -->
+        <div class="card col-12">
+          <div class="card-header">
+            <div class="card-title">
+              <span>📅 DISCIPLINE CALENDAR HEATMAP</span>
+            </div>
+            <div class="card-subtitle">Daily target completion intensity matrix (Past 16 Weeks)</div>
+          </div>
+          <div class="heatmap-container">
+            <div class="heatmap-grid" id="heatmap-grid-container">
+              <!-- Heatmap cells populated via JS -->
+            </div>
+            <div class="heatmap-legend">
+              <span>Less</span>
+              <div class="heatmap-cell heatmap-lvl-0"></div>
+              <div class="heatmap-cell heatmap-lvl-1"></div>
+              <div class="heatmap-cell heatmap-lvl-2"></div>
+              <div class="heatmap-cell heatmap-lvl-3"></div>
+              <div class="heatmap-cell heatmap-lvl-4"></div>
+              <span>More (100%)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- TAB 3: HISTORY JOURNAL VIEW -->
+    <!-- ============================================== -->
+    <div id="view-history" class="tab-view hidden fade-in">
+      <div class="history-controls">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="history-search-input" class="search-input" placeholder="Search past logs, subjects, learnings, or challenges...">
+        </div>
+
+        <button class="btn btn-outline-danger" id="btn-clear-data">
+          🗑️ Clear All Tracker Data
+        </button>
+      </div>
+
+      <div class="history-list" id="history-list-container">
+        <!-- History Cards Rendered via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- AUTHENTICATION MODAL -->
+  <div class="modal-backdrop" id="auth-modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Account Authentication</h2>
+        <button class="btn-icon" id="btn-close-auth-modal">✕</button>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="auth-tab-login">Login</button>
+        <button class="auth-tab-btn" id="auth-tab-signup">Create Account</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="auth-form-login">
+        <div class="auth-error-banner hidden" id="login-error-msg"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-input" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </div>
+      </form>
+
+      <!-- SIGN UP FORM -->
+      <form id="auth-form-signup" class="hidden">
+        <div class="auth-error-banner hidden" id="signup-error-msg"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="signup-name">Full Name</label>
+          <input type="text" id="signup-name" class="form-input" placeholder="Alex Johnson" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signup-email">Email Address</label>
+          <input type="email" id="signup-email" class="form-input" placeholder="alex@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signup-password">Password</label>
+          <input type="password" id="signup-password" class="form-input" placeholder="At least 6 characters" required minlength="6">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signup-goal">Primary Goal Track</label>
+          <select id="signup-goal" class="form-input">
+            <option value="UPSC / Govt Exams">UPSC & Govt Competitive Exams</option>
+            <option value="Software Engineering & Coding">Software Engineering & Coding</option>
+            <option value="Academic Study & University">Academic Study & University</option>
+            <option value="Fitness & Daily Habits">Fitness & Daily Habits</option>
+            <option value="General Self Growth">General Self Growth</option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success" style="width: 100%;">Create Free Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- USER PROFILE MODAL -->
+  <div class="modal-backdrop" id="profile-modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">User Account Profile</h2>
+        <button class="btn-icon" id="btn-close-profile-modal">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin: 1rem 0;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="avatar-circle" style="width: 50px; height: 50px; font-size: 1.25rem;">U</div>
+          <div>
+            <h3 id="profile-name-text" style="font-size: 1.2rem;">User Name</h3>
+            <p id="profile-email-text" style="font-size: 0.85rem; color: var(--text-muted);">user@example.com</p>
+          </div>
+        </div>
+
+        <div style="background-color: var(--bg-secondary); padding: 0.85rem; border-radius: var(--radius-md); font-size: 0.9rem;">
+          <strong>Goal Track:</strong> <span id="profile-goal-text">UPSC / Govt Exams</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger" id="btn-profile-logout" style="width: 100%;">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Application Scripts -->
+  <script src="sampleData.js"></script>
+  <script src="analytics.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
