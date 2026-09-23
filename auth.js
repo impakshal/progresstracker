@@ -144,7 +144,22 @@ window.AuthManager = {
       password
     });
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      const raw = error.message || 'Login failed';
+      // Supabase uses this same message for wrong password AND unconfirmed / missing users
+      if (/invalid login credentials/i.test(raw)) {
+        throw new Error(
+          'Invalid email or password. Also check: (1) user exists in Supabase → Authentication → Users, (2) email is confirmed, or turn OFF “Confirm email” while testing.'
+        );
+      }
+      if (/email not confirmed/i.test(raw)) {
+        throw new Error(
+          'Email not confirmed yet. Open the confirmation link, or disable “Confirm email” in Supabase Auth settings for testing.'
+        );
+      }
+      throw new Error(raw);
+    }
+
     await this.applySession(data.session);
     return this.currentUser;
   },
