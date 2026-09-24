@@ -4,3 +4,7 @@
 
 window.SUPABASE_URL = 'https://lzrhcnkrjyjwiokhyskj.supabase.co';
 window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6cmhjbmtyanlqd2lva2h5c2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMjA1NzksImV4cCI6MjEwNTY5NjU3OX0.tk6sF1A9sppJXAtIn95JqzJ-z9pNFO9gOqoc2a_aql8';
+
+// Google Analytics 4 (GA4) Measurement ID (e.g. 'G-XXXXXXXXXX')
+window.GA_MEASUREMENT_ID = 'G-WQ20BPFDPD';
+

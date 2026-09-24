@@ -12,15 +12,24 @@ window.App = {
   activeTab: 'logger',
   activeMode: 'all',
   activeAnalyticsPreset: '30days',
+  activeExam: 'boards',
   logs: {},
   _saveTimer: null,
+  timerInterval: null,
+  timerSeconds: 25 * 60,
 
   init: function () {
     this.loadTheme();
+    this.initExamTrack();
     this.bindEvents();
     this.setupDateNavigator();
     this.loadDailyLog(this.activeDate);
     this.updateStreakBadge();
+    this.renderSyllabus();
+    this.initTimer();
+    if (window.Router) {
+      window.Router.init();
+    }
   },
 
   isCloudMode: function () {
@@ -308,6 +317,13 @@ window.App = {
 
     this.writeLocalCache();
     this.updateStreakBadge();
+
+    if (window.trackGAEvent && mode === 'day') {
+      window.trackGAEvent('save_daily_log', {
+        date: dateStr,
+        mode: this.isCloudMode() ? 'cloud' : 'local'
+      });
+    }
 
     if (!this.isCloudMode()) return;
 
@@ -684,20 +700,244 @@ window.App = {
     document.getElementById('history-search-input')?.addEventListener('input', (e) => {
       this.renderHistoryList(e.target.value.toLowerCase());
     });
+
+    document.getElementById('header-exam-select')?.addEventListener('change', (e) => {
+      this.setExamTrack(e.target.value);
+    });
+
+    document.getElementById('profile-exam-select')?.addEventListener('change', (e) => {
+      this.setExamTrack(e.target.value);
+    });
+  },
+
+  initExamTrack: function () {
+    const saved = localStorage.getItem('progress_tracker_active_exam');
+    let targetExam = saved || 'boards';
+
+    if (window.AuthManager?.currentUser?.goalTrack) {
+      const userGoal = String(window.AuthManager.currentUser.goalTrack).toLowerCase();
+      if (userGoal.includes('jee')) targetExam = 'jee';
+      else if (userGoal.includes('neet')) targetExam = 'neet';
+      else if (userGoal.includes('upsc')) targetExam = 'upsc';
+      else if (userGoal.includes('board')) targetExam = 'boards';
+    }
+
+    this.setExamTrack(targetExam, false);
+  },
+
+  setExamTrack: function (examId, navigate = true) {
+    if (!window.EXAM_CONFIGS || !window.EXAM_CONFIGS[examId]) examId = 'boards';
+
+    this.activeExam = examId;
+    localStorage.setItem('progress_tracker_active_exam', examId);
+
+    const headerSelect = document.getElementById('header-exam-select');
+    const headerIcon = document.getElementById('header-exam-icon');
+    const profileSelect = document.getElementById('profile-exam-select');
+    const config = window.getExamConfig(examId);
+
+    if (headerSelect) headerSelect.value = examId;
+    if (profileSelect) profileSelect.value = examId;
+    if (headerIcon) headerIcon.textContent = config.icon;
+
+    this.applyExamConfigToDOM(config);
+
+    if (window.trackGAEvent) {
+      window.trackGAEvent('select_exam', { exam: examId });
+    }
+
+    if (navigate && window.Router) {
+      window.Router.navigate(`/tracker/${examId}`);
+    }
+  },
+
+  applyExamConfigToDOM: function (config) {
+    if (!config) return;
+
+    // 1. Update Card 3 (Subjects placeholder)
+    const subjInput = document.getElementById('morning-subjects');
+    if (subjInput) subjInput.placeholder = config.subjectPlaceholder;
+
+    // 2. Update Card 4 (Resources Options)
+    const resCard = document.getElementById('card-resources');
+    if (resCard) {
+      const titleEl = resCard.querySelector('.card-title span:last-child');
+      const subEl = resCard.querySelector('.card-subtitle');
+      if (titleEl) titleEl.textContent = config.resourcesLabel;
+      if (subEl) subEl.textContent = config.resourcesSubtitle;
+      const group = document.getElementById('morning-resources-group');
+      if (group) {
+        group.innerHTML = config.resourcesOptions.map(opt => `
+          <label class="check-label">
+            <input type="checkbox" value="${opt}"> ${opt}
+          </label>
+        `).join('');
+      }
+    }
+
+    // 3. Update Card 5 (Revision Options)
+    const revCard = document.getElementById('card-revision');
+    if (revCard) {
+      const titleEl = revCard.querySelector('.card-title span:last-child');
+      const subEl = revCard.querySelector('.card-subtitle');
+      if (titleEl) titleEl.textContent = config.revisionLabel;
+      if (subEl) subEl.textContent = config.revisionSubtitle;
+      const group = document.getElementById('morning-revision-group');
+      if (group) {
+        group.innerHTML = config.revisionOptions.map(opt => `
+          <label class="check-label">
+            <input type="checkbox" value="${opt}"> ${opt}
+          </label>
+        `).join('');
+      }
+    }
+
+    // 4. Update Card 6 (Focus Options)
+    const focusCard = document.getElementById('card-current-affairs');
+    if (focusCard) {
+      const titleEl = focusCard.querySelector('.card-title span:last-child');
+      const subEl = focusCard.querySelector('.card-subtitle');
+      if (titleEl) titleEl.textContent = config.focusCardTitle;
+      if (subEl) subEl.textContent = config.focusCardSubtitle;
+      const group = document.getElementById('morning-current-affairs-group');
+      if (group) {
+        group.innerHTML = config.focusOptions.map(opt => `
+          <label class="check-label">
+            <input type="checkbox" value="${opt}"> ${opt}
+          </label>
+        `).join('');
+      }
+    }
+
+    // 5. Update Motto Banner
+    const mottoText = document.querySelector('.motto-text');
+    const mottoSub = document.querySelector('.motto-sub');
+    if (mottoText) mottoText.textContent = `“${config.motto}”`;
+    if (mottoSub) mottoSub.textContent = `${config.name} · Discipline & Growth`;
+
+    // 6. Reload log & syllabus
+    this.loadDailyLog(this.activeDate);
+    this.renderSyllabus();
+  },
+
+  renderSyllabus: function () {
+    const container = document.getElementById('syllabus-grid-container');
+    if (!container) return;
+
+    const config = window.getExamConfig(this.activeExam || 'boards');
+    const mottoEl = document.getElementById('syllabus-motto');
+    const subEl = document.getElementById('syllabus-sub');
+    if (mottoEl) mottoEl.textContent = `Master Every Unit for ${config.name}`;
+    if (subEl) subEl.textContent = `${config.subtitle} — Subject & Chapter Checklist`;
+
+    const savedSyllabus = JSON.parse(localStorage.getItem(`syllabus_checklist_${this.activeExam}`) || '{}');
+
+    container.innerHTML = config.syllabus.map((subj, subjIdx) => `
+      <div class="syllabus-card">
+        <div class="syllabus-header">
+          <span>${subj.subject}</span>
+          <span class="exam-card-badge">${subj.units.length} Units</span>
+        </div>
+        <div class="checkbox-grid">
+          ${subj.units.map((unit, unitIdx) => {
+            const key = `${subjIdx}_${unitIdx}`;
+            const isChecked = !!savedSyllabus[key];
+            return `
+              <label class="check-label">
+                <input type="checkbox" data-unit-key="${key}" ${isChecked ? 'checked' : ''} onchange="App.toggleSyllabusUnit('${this.activeExam}', '${key}', this.checked)">
+                <span>${unit}</span>
+              </label>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `).join('');
+  },
+
+  toggleSyllabusUnit: function (examId, key, isChecked) {
+    const saved = JSON.parse(localStorage.getItem(`syllabus_checklist_${examId}`) || '{}');
+    saved[key] = isChecked;
+    localStorage.setItem(`syllabus_checklist_${examId}`, JSON.stringify(saved));
+    if (window.trackGAEvent) {
+      window.trackGAEvent('syllabus_check', { exam: examId, key, isChecked });
+    }
+  },
+
+  initTimer: function () {
+    document.getElementById('btn-timer-start')?.addEventListener('click', () => this.startTimer());
+    document.getElementById('btn-timer-pause')?.addEventListener('click', () => this.pauseTimer());
+    document.getElementById('btn-timer-reset')?.addEventListener('click', () => this.resetTimer());
+  },
+
+  setTimerMinutes: function (mins) {
+    this.pauseTimer();
+    this.timerSeconds = mins * 60;
+    this.updateTimerDisplay();
+  },
+
+  startTimer: function () {
+    if (this.timerInterval) return;
+    this.timerInterval = setInterval(() => {
+      if (this.timerSeconds > 0) {
+        this.timerSeconds--;
+        this.updateTimerDisplay();
+      } else {
+        this.pauseTimer();
+        this.showToast('🔔 Study Session Complete! Take a short break.', 'success');
+        if (window.trackGAEvent) {
+          window.trackGAEvent('timer_complete', { exam: this.activeExam });
+        }
+      }
+    }, 1000);
+  },
+
+  pauseTimer: function () {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  },
+
+  resetTimer: function () {
+    this.pauseTimer();
+    this.timerSeconds = 25 * 60;
+    this.updateTimerDisplay();
+  },
+
+  updateTimerDisplay: function () {
+    const display = document.getElementById('focus-timer-display');
+    if (!display) return;
+    const m = Math.floor(this.timerSeconds / 60).toString().padStart(2, '0');
+    const s = (this.timerSeconds % 60).toString().padStart(2, '0');
+    display.textContent = `${m}:${s}`;
+  },
+
+  onRouteChanged: function (section, param, fullPath) {
+    this.activeTab = section;
+    if (section === 'analytics') this.refreshAnalyticsView();
+    if (section === 'history') this.renderHistoryList();
+    if (section === 'syllabus') this.renderSyllabus();
   },
 
   switchTab: function (tabName) {
     this.activeTab = tabName;
+    if (window.Router) {
+      window.Router.navigate(`/${tabName}`);
+    } else {
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
+      });
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${tabName}`)?.classList.remove('hidden');
+    }
 
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.classList.toggle('active', tab.getAttribute('data-tab') === tabName);
-    });
-
-    document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
-    document.getElementById(`view-${tabName}`)?.classList.remove('hidden');
+    if (window.trackGAEvent) {
+      window.trackGAEvent('tab_switch', { tab: tabName });
+    }
 
     if (tabName === 'analytics') this.refreshAnalyticsView();
     if (tabName === 'history') this.renderHistoryList();
+    if (tabName === 'syllabus') this.renderSyllabus();
   },
 
   switchMode: function (mode) {

@@ -127,6 +127,10 @@ window.AuthManager = {
       };
     }
 
+    if (window.trackGAEvent) {
+      window.trackGAEvent('sign_up', { method: 'email', goal_track: goalTrack });
+    }
+
     await this.applySession(data.session);
     return { needsConfirmation: false, user: this.currentUser };
   },
@@ -160,6 +164,10 @@ window.AuthManager = {
       throw new Error(raw);
     }
 
+    if (window.trackGAEvent) {
+      window.trackGAEvent('login', { method: 'email' });
+    }
+
     await this.applySession(data.session);
     return this.currentUser;
   },
@@ -169,6 +177,11 @@ window.AuthManager = {
       const { error } = await SupabaseApp.getClient().auth.signOut();
       if (error) console.error('[Auth] signOut', error);
     }
+
+    if (window.trackGAEvent) {
+      window.trackGAEvent('logout');
+    }
+
     this.currentUser = null;
     this.updateUserUI();
     if (window.App?.onAuthUserChanged) {

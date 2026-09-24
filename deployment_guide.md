@@ -9,7 +9,8 @@ Your app is a static site. **Vercel** hosts it; **Supabase** handles auth and cl
 | File | Purpose |
 |------|---------|
 | `supabase/schema.sql` | Tables, RLS policies, profile trigger |
-| `config.js` / `config.example.js` | Supabase URL + anon key |
+| `config.js` / `config.example.js` | Supabase URL + anon key + GA Measurement ID |
+| `googleAnalytics.js` | GA4 script injection & custom event tracking |
 | `supabaseClient.js` | Creates the browser client |
 | `auth.js` | Supabase email/password auth |
 | `app.js` | Cloud load / upsert / clear + guest fallback |
@@ -58,6 +59,7 @@ Edit `config.js`:
 ```js
 window.SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
 window.SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+window.GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // Your Google Analytics 4 Measurement Stream ID
 ```
 
 Open `index.html` in a browser (or `npm start`).  
@@ -73,6 +75,7 @@ Guest mode still works; **Login / Create Account** uses Supabase.
 4. Add Environment Variables:
    - `SUPABASE_URL` = your project URL  
    - `SUPABASE_ANON_KEY` = your anon key  
+   - `GA_MEASUREMENT_ID` = your Google Analytics Stream ID (e.g. `G-XXXXXXXXXX`)
 5. Deploy.
 
 The build script writes `config.js` from those env vars on every deploy.
