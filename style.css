@@ -721,17 +721,20 @@ p {
 
 /* Hours Counter Card */
 .hours-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 1rem;
+  width: 100%;
 }
 
 .hours-box {
+  flex: 1 1 0;
+  min-width: 0;
   background-color: var(--bg-secondary);
   border-radius: var(--radius-md);
   padding: 1rem;
   text-align: center;
   border: 1px solid var(--border-color);
+  transition: var(--transition);
 }
 
 .hours-label {

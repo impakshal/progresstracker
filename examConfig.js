@@ -6,9 +6,9 @@
 window.EXAM_CONFIGS = {
   boards: {
     id: 'boards',
-    name: 'Board Exams (Class 10 / 12)',
+    name: 'Board Exams',
     shortName: 'Board Exams',
-    badge: '📚 Class 10 / 12',
+    badge: '📚 Class 10',
     icon: '📚',
     subtitle: 'CBSE · ICSE · State Boards · Science / Commerce / Arts',
     motto: 'Strong Fundamentals Today, Top Board Results Tomorrow!',
@@ -43,24 +43,36 @@ window.EXAM_CONFIGS = {
     ],
     syllabus: [
       {
-        subject: 'Mathematics / Applied Math',
-        units: ['Algebra & Quadratic Equations', 'Calculus & Derivatives', 'Coordinate Geometry', 'Trigonometry & Heights', 'Probability & Statistics']
+        subject: 'Mathematics I',
+        units: ['Linear Equations in Two Variables', 'Quadratic Equations', 'Arithmetic Progression', 'Financial Planning', 'Probability', 'Statistics']
       },
       {
-        subject: 'Physics / Science',
-        units: ['Light - Reflection & Refraction', 'Electricity & Magnetism', 'Mechanics & Motion', 'Optics & Wave Motion', 'Modern Physics']
+        subject: 'Mathematics II',
+        units: ['Similarity', 'Pythogoras Theorem', 'Circle', 'Geometric Construction', 'Coordinate Geometry', 'Trigonometry', 'Mensuration']
       },
       {
-        subject: 'Chemistry',
-        units: ['Chemical Reactions & Equations', 'Acids, Bases & Salts', 'Carbon & Its Compounds', 'Organic Reactions & Mechanisms', 'Electrochemistry & Solutions']
+        subject: 'Science I',
+        units: ['Gravitation', 'Periodic Classification of Elements', 'Chemical Reactions and Equations', 'Effects of Electric Current', 'Heat', 'Refraction of Light', 'Lenses', 'Metallurgy', 'Carbon Compounds', 'Space Mission']
       },
       {
-        subject: 'Biology',
-        units: ['Life Processes', 'Control & Coordination', 'How Organisms Reproduce', 'Heredity & Evolution', 'Our Environment & Ecology']
+        subject: 'Science II',
+        units: ['Heridity and Evolution', 'Living Processes in Living Organism Part-1', 'Life Processes in Living Organism Part-2', 'Environmental Management', 'Towards Green Energy', 'Animal Classification', 'Introduction to Microbiology', 'Cell Biology and Biotechnology', 'Social Health', 'Disaster Management']
       },
       {
-        subject: 'Languages & Humanities',
-        units: ['English Reading & Comprehension', 'Grammar & Creative Writing', 'Literature Prose & Poetry', 'Social Science / History & Geography', 'Economics & Civics']
+        subject: 'History',
+        units: ['Historiography- Development in the West', 'Historiography- Indian Tradition', 'Applied History', 'History of Indian Arts', 'Mass Media and History', 'Entertainment and History', 'Sports and History', 'Tourism and History', 'Heritage Management']
+      },
+      {
+        subject: 'Geography',
+        units: ['Field Visit', 'Location and Extent', 'Physiography and Drainage', 'Climate', 'Natural Vegetation and Wild Life', 'Population', 'Humman Settlements', 'Economic Activity and Occupations', 'Tourism, Transport and Communication']
+      },
+      {
+        subject: 'Civics',
+        units: ['Working of the Constitution', 'The Electoral Process', 'Political Parties', 'Social and Political Movement', 'Challenges Faced by Indian Democracy']
+      },
+      {
+        subject: 'Language',
+        units: ['Comprehension', 'Poetry and Appreciation', 'Grammar', 'Writing Skill', 'Novels']
       }
     ]
   },

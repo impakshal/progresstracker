@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pathshalla | Daily Progress & Exam Prep Tracker</title>
-  <meta name="description" content="Pathshalla — Comprehensive daily progress and study tracker for Board Exams, JEE, NEET, and UPSC aspirants.">
-  
+  <meta name="description"
+    content="Pathshalla — Comprehensive daily progress and study tracker for Board Exams, JEE, NEET, and UPSC aspirants.">
+
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- App Header & Navbar -->
   <header class="app-header">
     <div class="header-container">
-      
+
       <!-- Left: Pathshalla Brand -->
       <div class="brand-section">
         <div class="brand-icon" title="Pathshalla — Daily Discipline & Growth">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
@@ -39,7 +43,17 @@
 
         <!-- Light/Dark Theme Toggle -->
         <button class="btn-icon" id="btn-toggle-theme" title="Toggle Light/Dark Theme">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
         </button>
 
         <!-- Minimal Blue Circle Profile Button -->
@@ -53,8 +67,11 @@
 
   <!-- Guest Mode Banner -->
   <div class="guest-banner" id="guest-mode-banner">
-    <span>💡 You are using <strong>Guest Mode</strong>. Data stays in this browser until you log in. <span id="cloud-status-text">Checking cloud…</span></span>
-    <button class="btn btn-primary" id="btn-guest-signin-link" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-pill);">Create Account / Login</button>
+    <span>💡 You are using <strong>Guest Mode</strong>. Data stays in this browser until you log in. <span
+        id="cloud-status-text">Checking cloud…</span></span>
+    <button class="btn btn-primary" id="btn-guest-signin-link"
+      style="padding: 0.25rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-pill);">Create Account /
+      Login</button>
   </div>
 
   <!-- Date Navigation Bar -->
@@ -64,7 +81,8 @@
         <button class="btn-icon" id="btn-prev-day" title="Previous Day">◀</button>
         <input type="date" id="date-picker" class="date-picker-input">
         <button class="btn-icon" id="btn-next-day" title="Next Day">▶</button>
-        <button class="btn btn-secondary" id="btn-today" style="padding: 0.35rem 0.8rem; font-size: 0.85rem;">Today</button>
+        <button class="btn btn-secondary" id="btn-today"
+          style="padding: 0.35rem 0.8rem; font-size: 0.85rem;">Today</button>
       </div>
 
       <div class="day-pills" id="day-pills-container">
@@ -87,7 +105,7 @@
     <!-- TAB 1: DAILY LOGGER VIEW -->
     <!-- ============================================== -->
     <div id="view-logger" class="tab-view fade-in">
-      
+
       <!-- Inspirational Motto Banner -->
       <div class="motto-banner">
         <div>
@@ -95,7 +113,6 @@
           <div class="motto-sub">Discipline Today · Brighter Tomorrow</div>
         </div>
         <div class="motto-stickers">
-          <button class="btn btn-primary" id="btn-load-demo-motto" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; transform: rotate(-1deg);">⚡ Load Demo History</button>
           <div class="sticker-badge">Same Effort, A Brighter You ♡</div>
           <div class="sticker-badge">1% Improvement Every Day = 37x a Year 📈</div>
         </div>
@@ -131,14 +148,16 @@
             <div class="hours-box morning-card">
               <div class="hours-label">Planned Hours</div>
               <div class="hours-input-wrapper">
-                <input type="number" step="0.5" min="0" max="24" id="morning-planned-hours" class="hours-input" value="0">
+                <input type="number" step="0.5" min="0" max="24" id="morning-planned-hours" class="hours-input"
+                  value="0">
                 <span class="hours-unit">hrs</span>
               </div>
             </div>
             <div class="hours-box night-card">
               <div class="hours-label">Completed Hours</div>
               <div class="hours-input-wrapper">
-                <input type="number" step="0.5" min="0" max="24" id="night-completed-hours" class="hours-input" value="0">
+                <input type="number" step="0.5" min="0" max="24" id="night-completed-hours" class="hours-input"
+                  value="0">
                 <span class="hours-unit">hrs</span>
               </div>
             </div>
@@ -157,7 +176,8 @@
             </div>
             <div class="card-subtitle">What did you focus on today?</div>
           </div>
-          <textarea id="morning-subjects" class="form-textarea" placeholder="e.g. Physics: Electromagnetism&#10;Math: Integration by Parts&#10;Chemistry: Organic Reactions"></textarea>
+          <textarea id="morning-subjects" class="form-textarea"
+            placeholder="e.g. Physics: Electromagnetism&#10;Math: Integration by Parts&#10;Chemistry: Organic Reactions"></textarea>
         </div>
 
         <!-- CARD 4: STUDY RESOURCES & PRACTICE -->
@@ -259,11 +279,13 @@
           <div class="challenges-grid">
             <div>
               <div class="section-label">Challenges</div>
-              <textarea id="night-challenges" class="form-textarea" placeholder="• Felt sleepy after lunch&#10;• Phone distraction during Physics block"></textarea>
+              <textarea id="night-challenges" class="form-textarea"
+                placeholder="• Felt sleepy after lunch&#10;• Phone distraction during Physics block"></textarea>
             </div>
             <div>
               <div class="section-label">Solutions / Plan for Tomorrow</div>
-              <textarea id="night-solutions" class="form-textarea" placeholder="• Take 15-min power nap&#10;• Put phone in another room"></textarea>
+              <textarea id="night-solutions" class="form-textarea"
+                placeholder="• Take 15-min power nap&#10;• Put phone in another room"></textarea>
             </div>
           </div>
         </div>
@@ -304,7 +326,8 @@
             </div>
             <div class="card-subtitle">Say it. Believe it. Become it.</div>
           </div>
-          <textarea id="morning-affirmation" class="form-textarea" placeholder="Write your morning affirmation...&#10;e.g. I am focused, calm, and relentless in pursuing my goals."></textarea>
+          <textarea id="morning-affirmation" class="form-textarea"
+            placeholder="Write your morning affirmation...&#10;e.g. I am focused, calm, and relentless in pursuing my goals."></textarea>
         </div>
 
         <!-- CARD 10: WHAT I LEARNED TODAY -->
@@ -316,7 +339,8 @@
             </div>
             <div class="card-subtitle">New concepts, insights, or important points</div>
           </div>
-          <textarea id="night-learned" class="form-textarea" style="min-height: 110px;" placeholder="• Learned shortcut for integration by parts&#10;• Understood Faraday's law key applications"></textarea>
+          <textarea id="night-learned" class="form-textarea" style="min-height: 110px;"
+            placeholder="• Learned shortcut for integration by parts&#10;• Understood Faraday's law key applications"></textarea>
         </div>
 
         <!-- CARD 11: REFLECTIONS FOR TOMORROW -->
@@ -328,7 +352,8 @@
             </div>
             <div class="card-subtitle">Plan better. Do better.</div>
           </div>
-          <textarea id="night-reflections" class="form-textarea" style="min-height: 110px;" placeholder="• Start with high-priority Physics PYQs right at 8:00 AM&#10;• Revise short notes before sleeping"></textarea>
+          <textarea id="night-reflections" class="form-textarea" style="min-height: 110px;"
+            placeholder="• Start with high-priority Physics PYQs right at 8:00 AM&#10;• Revise short notes before sleeping"></textarea>
         </div>
 
       </div>
@@ -340,16 +365,17 @@
     <!-- ============================================== -->
     <div id="view-analytics" class="tab-view hidden fade-in">
       <div class="analytics-container">
-        
+
         <!-- Analytics Filter & Custom Interval Bar -->
         <div class="analytics-filter-bar">
           <div style="flex: 1; min-width: 250px;">
             <h2 style="font-size: 1.25rem;">Discipline & Progress Analytics</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">Evaluate performance & study trends over any custom date range.</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">Evaluate performance & study trends over any
+              custom date range.</p>
           </div>
-          
+
           <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-            
+
             <!-- Quick Preset Pills -->
             <div class="mode-toggle-group" id="preset-pills-group">
               <button class="mode-btn" data-preset="today">Today</button>
@@ -361,22 +387,28 @@
             </div>
 
             <!-- Custom Date Range Fields (Always Available) -->
-            <div class="custom-range-box" style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); padding: 0.4rem 0.8rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); flex-wrap: wrap;">
+            <div class="custom-range-box"
+              style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); padding: 0.4rem 0.8rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); flex-wrap: wrap;">
               <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">Custom Range:</span>
-              <input type="date" id="analytics-start-date" class="date-picker-input" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">
+              <input type="date" id="analytics-start-date" class="date-picker-input"
+                style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">
               <span style="font-size: 0.85rem; color: var(--text-muted);">to</span>
-              <input type="date" id="analytics-end-date" class="date-picker-input" style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">
-              <button class="btn btn-primary" id="btn-apply-custom-range" style="padding: 0.3rem 0.75rem; font-size: 0.85rem;">🔍 Filter Range</button>
+              <input type="date" id="analytics-end-date" class="date-picker-input"
+                style="font-size: 0.85rem; padding: 0.25rem 0.5rem;">
+              <button class="btn btn-primary" id="btn-apply-custom-range"
+                style="padding: 0.3rem 0.75rem; font-size: 0.85rem;">🔍 Filter Range</button>
             </div>
 
           </div>
         </div>
 
         <!-- Empty Analytics Data Notice -->
-        <div id="analytics-empty-notice" class="card hidden" style="background-color: var(--brand-light); border-color: var(--brand-primary); padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <div id="analytics-empty-notice" class="card hidden"
+          style="background-color: var(--brand-light); border-color: var(--brand-primary); padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
           <div>
             <h3 style="font-size: 1rem; color: var(--brand-primary);">No progress logs found for this date interval</h3>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">Try selecting a different interval or click "⚡ Load Demo Data" to populate sample history for analysis.</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">Try selecting a different
+              interval or click "⚡ Load Demo Data" to populate sample history for analysis.</p>
           </div>
           <button class="btn btn-primary" id="btn-load-demo-analytics">⚡ Load Demo Data</button>
         </div>
@@ -482,7 +514,8 @@
       <div class="history-controls">
         <div class="search-input-wrapper">
           <span class="search-icon">🔍</span>
-          <input type="text" id="history-search-input" class="search-input" placeholder="Search past logs, subjects, learnings, or challenges...">
+          <input type="text" id="history-search-input" class="search-input"
+            placeholder="Search past logs, subjects, learnings, or challenges...">
         </div>
 
         <button class="btn btn-outline-danger" id="btn-clear-data">
@@ -537,7 +570,8 @@
     <div id="view-select-exam" class="tab-view hidden fade-in">
       <div style="text-align: center; margin-bottom: 2rem;">
         <h1>🎯 Select Your Target Exam</h1>
-        <p style="color: var(--text-secondary);">Your daily logger, targets, resources, and syllabus will adapt automatically.</p>
+        <p style="color: var(--text-secondary);">Your daily logger, targets, resources, and syllabus will adapt
+          automatically.</p>
       </div>
 
       <div class="exam-cards-grid">
@@ -556,7 +590,8 @@
             <div class="exam-card-icon">⚛️</div>
             <div class="exam-card-title">JEE (Main & Adv)</div>
             <div class="exam-card-badge">Engineering</div>
-            <p class="exam-card-desc">Physics numericals, organic mechanisms, math problem banks, and speed mock tests.</p>
+            <p class="exam-card-desc">Physics numericals, organic mechanisms, math problem banks, and speed mock tests.
+            </p>
           </div>
           <button class="btn btn-secondary">Select JEE Track</button>
         </div>
@@ -566,7 +601,8 @@
             <div class="exam-card-icon">🧬</div>
             <div class="exam-card-title">NEET (UG)</div>
             <div class="exam-card-badge">Medical</div>
-            <p class="exam-card-desc">NCERT Biology line-by-line, chemistry drills, physics formulas, and 100+ MCQ speed tests.</p>
+            <p class="exam-card-desc">NCERT Biology line-by-line, chemistry drills, physics formulas, and 100+ MCQ speed
+              tests.</p>
           </div>
           <button class="btn btn-secondary">Select NEET Track</button>
         </div>
@@ -576,7 +612,8 @@
             <div class="exam-card-icon">🏛️</div>
             <div class="exam-card-title">UPSC & Govt Exams</div>
             <div class="exam-card-badge">Civil Services</div>
-            <p class="exam-card-desc">General Studies GS1-4, optional subject, daily current affairs, and answer writing.</p>
+            <p class="exam-card-desc">General Studies GS1-4, optional subject, daily current affairs, and answer
+              writing.</p>
           </div>
           <button class="btn btn-secondary">Select UPSC Track</button>
         </div>
@@ -633,7 +670,8 @@
 
         <div class="form-group">
           <label class="form-label" for="signup-password">Password</label>
-          <input type="password" id="signup-password" class="form-input" placeholder="At least 6 characters" required minlength="6">
+          <input type="password" id="signup-password" class="form-input" placeholder="At least 6 characters" required
+            minlength="6">
         </div>
 
         <div class="form-group">
@@ -662,14 +700,17 @@
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 1.25rem; margin: 1rem 0;">
-        
+
         <!-- User Account Identity Box -->
-        <div style="display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
           <div style="display: flex; align-items: center; gap: 0.85rem;">
-            <div class="avatar-circle" id="profile-modal-avatar" style="width: 48px; height: 48px; font-size: 1.2rem;">👤</div>
+            <div class="avatar-circle" id="profile-modal-avatar" style="width: 48px; height: 48px; font-size: 1.2rem;">
+              👤</div>
             <div>
               <h3 id="profile-name-text" style="font-size: 1.1rem; font-weight: 700;">Guest Mode</h3>
-              <p id="profile-email-text" style="font-size: 0.82rem; color: var(--text-muted);">Local guest storage (not logged in)</p>
+              <p id="profile-email-text" style="font-size: 0.82rem; color: var(--text-muted);">Local guest storage (not
+                logged in)</p>
             </div>
           </div>
           <div id="profile-auth-action-wrapper">
@@ -680,10 +721,12 @@
 
         <!-- Section 1: Target Exam Track Selection -->
         <div class="profile-section-card">
-          <label style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <label
+            style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
             <span>🎓 Target Exam Track</span>
           </label>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Switch exam anytime to adapt your subjects, trackers, and syllabus checklist.</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Switch exam anytime to adapt
+            your subjects, trackers, and syllabus checklist.</p>
           <select id="profile-exam-select" class="form-input" onchange="App.setExamTrack(this.value)">
             <option value="boards">📚 Board Exams (Class 10 / 12)</option>
             <option value="jee">⚛️ JEE (Main & Advanced)</option>
@@ -694,10 +737,12 @@
 
         <!-- Section 2: Data Tools & Utilities -->
         <div class="profile-section-card">
-          <label style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+          <label
+            style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
             <span>💾 Data Tools & Backup</span>
           </label>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Manage your sample dataset, download JSON backups, or reset data.</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Manage your sample dataset,
+            download JSON backups, or reset data.</p>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
             <button class="btn btn-secondary" id="btn-load-sample-data" title="Load 30 Days Demo Dataset">
               ⚡ Load Demo
@@ -722,23 +767,41 @@
   <!-- FIXED BOTTOM MOBILE / RESPONSIVE NAVIGATION BAR -->
   <nav class="nav-tabs">
     <button class="nav-tab active" data-tab="logger" data-route="/tracker" id="nav-tab-logger">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
       <span>Logger</span>
     </button>
     <button class="nav-tab" data-tab="analytics" data-route="/analytics" id="nav-tab-analytics">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="20" x2="18" y2="10"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="14"></line>
+      </svg>
       <span>Analytics</span>
     </button>
     <button class="nav-tab" data-tab="history" data-route="/history" id="nav-tab-history">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
       <span>History</span>
     </button>
     <button class="nav-tab" data-tab="syllabus" data-route="/syllabus" id="nav-tab-syllabus">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 11l3 3L22 4"></path>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
       <span>Syllabus</span>
     </button>
     <button class="nav-tab" data-tab="focus-timer" data-route="/focus-timer" id="nav-tab-focus-timer">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
       <span>Focus Timer</span>
     </button>
   </nav>
@@ -756,4 +819,5 @@
   <script src="auth.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

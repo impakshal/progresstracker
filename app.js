@@ -840,15 +840,15 @@ window.App = {
         </div>
         <div class="checkbox-grid">
           ${subj.units.map((unit, unitIdx) => {
-            const key = `${subjIdx}_${unitIdx}`;
-            const isChecked = !!savedSyllabus[key];
-            return `
+      const key = `${subjIdx}_${unitIdx}`;
+      const isChecked = !!savedSyllabus[key];
+      return `
               <label class="check-label">
                 <input type="checkbox" data-unit-key="${key}" ${isChecked ? 'checked' : ''} onchange="App.toggleSyllabusUnit('${this.activeExam}', '${key}', this.checked)">
                 <span>${unit}</span>
               </label>
             `;
-          }).join('')}
+    }).join('')}
         </div>
       </div>
     `).join('');
