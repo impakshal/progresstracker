@@ -962,7 +962,7 @@ window.App = {
     const badge = document.getElementById('streak-count-display');
     if (!badge || !window.AnalyticsEngine?.calculateStreaks) return;
     const streaks = AnalyticsEngine.calculateStreaks(this.logs);
-    badge.textContent = `${streaks.current} Days 🔥`;
+    badge.textContent = `${streaks.current}`;
   },
 
   renderHistoryList: function (filterTerm = '') {

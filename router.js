@@ -77,7 +77,7 @@ window.Router = {
 
   trackPageView: function (path, pageName) {
     const activeExam = window.App?.activeExam || 'boards';
-    const pageTitle = `Discipline Today | ${pageName.toUpperCase()} (${activeExam.toUpperCase()})`;
+    const pageTitle = `Pathshalla | ${pageName.toUpperCase()} (${activeExam.toUpperCase()})`;
 
     // Log GA4 Page View
     if (window.trackGAEvent) {

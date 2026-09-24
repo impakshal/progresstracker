@@ -196,22 +196,42 @@ window.AuthManager = {
     const guestNotice = document.getElementById('guest-mode-banner');
     const cloudBadge = document.getElementById('cloud-status-text');
 
+    const profileAvatarModal = document.getElementById('profile-modal-avatar');
+    const profileNameText = document.getElementById('profile-name-text');
+    const profileEmailText = document.getElementById('profile-email-text');
+    const profileLoginBtn = document.getElementById('btn-profile-login');
+    const profileLogoutBtn = document.getElementById('btn-profile-logout');
+
     if (this.currentUser) {
-      if (userNameEl) userNameEl.textContent = this.currentUser.name;
-      if (userAvatarEl) {
-        const initials = this.currentUser.name
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
-          .toUpperCase()
-          .slice(0, 2);
-        userAvatarEl.textContent = initials || 'U';
-      }
+      const name = this.currentUser.name;
+      const initials = name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+
+      if (userNameEl) userNameEl.textContent = name;
+      if (userAvatarEl) userAvatarEl.textContent = initials || '👤';
+      if (profileAvatarModal) profileAvatarModal.textContent = initials || '👤';
+      if (profileNameText) profileNameText.textContent = name;
+      if (profileEmailText) profileEmailText.textContent = this.currentUser.email;
+
+      if (profileLoginBtn) profileLoginBtn.classList.add('hidden');
+      if (profileLogoutBtn) profileLogoutBtn.classList.remove('hidden');
+
       if (guestNotice) guestNotice.classList.add('hidden');
       if (cloudBadge) cloudBadge.textContent = 'Cloud sync on';
     } else {
-      if (userNameEl) userNameEl.textContent = 'Guest User (Login)';
-      if (userAvatarEl) userAvatarEl.textContent = '🔑';
+      if (userNameEl) userNameEl.textContent = 'Guest Mode';
+      if (userAvatarEl) userAvatarEl.textContent = '👤';
+      if (profileAvatarModal) profileAvatarModal.textContent = '👤';
+      if (profileNameText) profileNameText.textContent = 'Guest Mode';
+      if (profileEmailText) profileEmailText.textContent = 'Local guest storage (not logged in)';
+
+      if (profileLoginBtn) profileLoginBtn.classList.remove('hidden');
+      if (profileLogoutBtn) profileLogoutBtn.classList.add('hidden');
+
       if (guestNotice) guestNotice.classList.remove('hidden');
       if (cloudBadge) {
         cloudBadge.textContent = this.isCloudAuth()
@@ -226,8 +246,12 @@ window.AuthManager = {
     const profileModal = document.getElementById('profile-modal-backdrop');
 
     document.getElementById('user-profile-pill')?.addEventListener('click', () => {
-      if (this.currentUser) this.openProfileModal();
-      else this.openAuthModal();
+      this.openProfileModal();
+    });
+
+    document.getElementById('btn-profile-login')?.addEventListener('click', () => {
+      profileModal?.classList.remove('active');
+      this.openAuthModal();
     });
 
     document.getElementById('btn-close-auth-modal')?.addEventListener('click', () => {
@@ -332,11 +356,11 @@ window.AuthManager = {
   },
 
   openProfileModal: function () {
-    if (!this.currentUser) return;
-    document.getElementById('profile-name-text').textContent = this.currentUser.name;
-    document.getElementById('profile-email-text').textContent = this.currentUser.email;
-    document.getElementById('profile-goal-text').textContent =
-      this.currentUser.goalTrack || 'General Growth';
+    this.updateUserUI();
+    const examSelect = document.getElementById('profile-exam-select');
+    if (examSelect && window.App?.activeExam) {
+      examSelect.value = window.App.activeExam;
+    }
     document.getElementById('profile-modal-backdrop')?.classList.add('active');
   }
 };

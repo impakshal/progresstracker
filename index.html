@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Progress Tracker | Discipline Today · Brighter Tomorrow</title>
-  <meta name="description" content="A comprehensive daily progress tracker web app to log morning expectations, night reality, track study hours, target completion, and analyze long-term discipline.">
+  <title>Pathshalla | Daily Progress & Exam Prep Tracker</title>
+  <meta name="description" content="Pathshalla — Comprehensive daily progress and study tracker for Board Exams, JEE, NEET, and UPSC aspirants.">
   
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="style.css">
@@ -14,93 +14,47 @@
   <!-- App Header & Navbar -->
   <header class="app-header">
     <div class="header-container">
+      
+      <!-- Left: Pathshalla Brand -->
       <div class="brand-section">
-        <div class="brand-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        <div class="brand-icon" title="Pathshalla — Daily Discipline & Growth">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
         </div>
         <div>
-          <h1 class="brand-title">
-            DISCIPLINE TODAY
-          </h1>
-          <p class="brand-subtitle">Small Steps Every Day Lead to Big Results</p>
+          <h1 class="brand-title">PATHSHALLA</h1>
+          <p class="brand-subtitle">Empowering Daily Discipline & Learning</p>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="nav-tabs">
-        <button class="nav-tab active" data-tab="logger" data-route="/tracker" id="nav-tab-logger">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-          Daily Logger
-        </button>
-        <button class="nav-tab" data-tab="analytics" data-route="/analytics" id="nav-tab-analytics">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-          Analytics
-        </button>
-        <button class="nav-tab" data-tab="history" data-route="/history" id="nav-tab-history">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-          History
-        </button>
-        <button class="nav-tab" data-tab="syllabus" data-route="/syllabus" id="nav-tab-syllabus">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-          Syllabus
-        </button>
-        <button class="nav-tab" data-tab="focus-timer" data-route="/focus-timer" id="nav-tab-focus-timer">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          Focus Timer
-        </button>
-      </nav>
-
-      <!-- Utility Action Controls -->
+      <!-- Right: Minimal Action Controls (Streak, Theme Toggle, Avatar Profile Icon) -->
       <div class="header-actions">
-
-        <!-- Target Exam Switcher Pill -->
-        <div class="exam-selector-pill" title="Click to Change Target Exam Track">
-          <span id="header-exam-icon">📚</span>
-          <select id="header-exam-select" class="exam-selector-select">
-            <option value="boards">Board Exams (10/12)</option>
-            <option value="jee">JEE Main & Adv</option>
-            <option value="neet">NEET UG Medical</option>
-            <option value="upsc">UPSC & Govt Exams</option>
-          </select>
-        </div>
-
-        <!-- User Auth Profile Pill -->
-        <div class="user-profile-pill" id="user-profile-pill" title="Click to view Account / Login">
-          <div class="avatar-circle" id="user-avatar-initial">🔑</div>
-          <span id="user-display-name">Guest Mode</span>
-        </div>
-
-        <div class="streak-badge" id="streak-badge-container">
+        <!-- Streak Counter Badge (Minimalist Icon + Number) -->
+        <div class="streak-badge" id="streak-badge-container" title="Current Daily Streak">
           <span>🔥</span>
-          <span id="streak-count-display">0 Days</span>
+          <span id="streak-count-display">0</span>
         </div>
 
+        <!-- Light/Dark Theme Toggle -->
         <button class="btn-icon" id="btn-toggle-theme" title="Toggle Light/Dark Theme">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
 
-        <button class="btn btn-secondary" id="btn-load-sample-data" title="Load 30 Days Demo Dataset">
-          ⚡ Demo
-        </button>
-
-        <button class="btn btn-secondary" id="btn-export-json" title="Download JSON Backup">
-          💾 Backup
-        </button>
-
-        <input type="file" id="file-import-input" accept=".json" class="hidden">
-        <button class="btn btn-secondary" id="btn-import-json" title="Restore Data from JSON">
-          📥 Restore
+        <!-- Minimal Blue Circle Profile Button -->
+        <button class="profile-avatar-btn" id="user-profile-pill" title="Profile & App Settings">
+          <div class="avatar-circle" id="user-avatar-initial">PJ</div>
         </button>
       </div>
+
     </div>
   </header>
 
   <!-- Guest Mode Banner -->
   <div class="guest-banner" id="guest-mode-banner">
     <span>💡 You are using <strong>Guest Mode</strong>. Data stays in this browser until you log in. <span id="cloud-status-text">Checking cloud…</span></span>
-    <button class="btn btn-primary" id="btn-guest-signin-link" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Create Account / Login</button>
+    <button class="btn btn-primary" id="btn-guest-signin-link" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-pill);">Create Account / Login</button>
   </div>
 
   <!-- Date Navigation Bar -->
@@ -699,25 +653,37 @@
     </div>
   </div>
 
-  <!-- USER PROFILE MODAL -->
+  <!-- USER PROFILE & SETTINGS MODAL -->
   <div class="modal-backdrop" id="profile-modal-backdrop">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 520px;">
       <div class="modal-header">
-        <h2 class="modal-title">User Account Profile</h2>
+        <h2 class="modal-title">👤 Profile & App Settings</h2>
         <button class="btn-icon" id="btn-close-profile-modal">✕</button>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 1rem; margin: 1rem 0;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div class="avatar-circle" style="width: 50px; height: 50px; font-size: 1.25rem;">U</div>
-          <div>
-            <h3 id="profile-name-text" style="font-size: 1.2rem;">User Name</h3>
-            <p id="profile-email-text" style="font-size: 0.85rem; color: var(--text-muted);">user@example.com</p>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin: 1rem 0;">
+        
+        <!-- User Account Identity Box -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div class="avatar-circle" id="profile-modal-avatar" style="width: 48px; height: 48px; font-size: 1.2rem;">👤</div>
+            <div>
+              <h3 id="profile-name-text" style="font-size: 1.1rem; font-weight: 700;">Guest Mode</h3>
+              <p id="profile-email-text" style="font-size: 0.82rem; color: var(--text-muted);">Local guest storage (not logged in)</p>
+            </div>
+          </div>
+          <div id="profile-auth-action-wrapper">
+            <button class="btn btn-primary btn-sm" id="btn-profile-login">Login / Sign Up</button>
+            <button class="btn btn-outline-danger btn-sm hidden" id="btn-profile-logout">Log Out</button>
           </div>
         </div>
 
-        <div style="background-color: var(--bg-secondary); padding: 0.85rem; border-radius: var(--radius-md); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.5rem;">
-          <label style="font-weight: 700;">Target Exam Track:</label>
+        <!-- Section 1: Target Exam Track Selection -->
+        <div class="profile-section-card">
+          <label style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span>🎓 Target Exam Track</span>
+          </label>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Switch exam anytime to adapt your subjects, trackers, and syllabus checklist.</p>
           <select id="profile-exam-select" class="form-input" onchange="App.setExamTrack(this.value)">
             <option value="boards">📚 Board Exams (Class 10 / 12)</option>
             <option value="jee">⚛️ JEE (Main & Advanced)</option>
@@ -725,13 +691,57 @@
             <option value="upsc">🏛️ UPSC & Govt Exams</option>
           </select>
         </div>
-      </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-outline-danger" id="btn-profile-logout" style="width: 100%;">Log Out</button>
+        <!-- Section 2: Data Tools & Utilities -->
+        <div class="profile-section-card">
+          <label style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span>💾 Data Tools & Backup</span>
+          </label>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Manage your sample dataset, download JSON backups, or reset data.</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <button class="btn btn-secondary" id="btn-load-sample-data" title="Load 30 Days Demo Dataset">
+              ⚡ Load Demo
+            </button>
+            <button class="btn btn-secondary" id="btn-export-json" title="Download JSON Backup">
+              💾 Backup Data
+            </button>
+            <input type="file" id="file-import-input" accept=".json" class="hidden">
+            <button class="btn btn-secondary" id="btn-import-json" title="Restore Data from JSON">
+              📥 Restore Data
+            </button>
+            <button class="btn btn-outline-danger" id="btn-clear-data" title="Clear all recorded logs">
+              🗑️ Reset Data
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
+
+  <!-- FIXED BOTTOM MOBILE / RESPONSIVE NAVIGATION BAR -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="logger" data-route="/tracker" id="nav-tab-logger">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+      <span>Logger</span>
+    </button>
+    <button class="nav-tab" data-tab="analytics" data-route="/analytics" id="nav-tab-analytics">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      <span>Analytics</span>
+    </button>
+    <button class="nav-tab" data-tab="history" data-route="/history" id="nav-tab-history">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span>History</span>
+    </button>
+    <button class="nav-tab" data-tab="syllabus" data-route="/syllabus" id="nav-tab-syllabus">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      <span>Syllabus</span>
+    </button>
+    <button class="nav-tab" data-tab="focus-timer" data-route="/focus-timer" id="nav-tab-focus-timer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span>Focus Timer</span>
+    </button>
+  </nav>
 
   <!-- JS: Chart.js + Supabase + Google Analytics + Exam Engine + Router + App -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
