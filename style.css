@@ -1499,6 +1499,76 @@ p {
   justify-content: space-between;
 }
 
+.syllabus-unit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  transition: var(--transition);
+}
+
+.syllabus-unit-item:hover {
+  background-color: var(--bg-surface-hover);
+}
+
+.syllabus-unit-item .check-label {
+  background: transparent;
+  padding: 0.25rem 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.syllabus-unit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.btn-syllabus-action {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-syllabus-action:hover {
+  transform: scale(1.08);
+}
+
+.btn-link-chapter {
+  color: var(--brand-secondary);
+}
+
+.btn-link-chapter:hover {
+  background-color: var(--brand-secondary);
+  color: white;
+  border-color: var(--brand-secondary);
+}
+
+.btn-download-chapter {
+  color: var(--brand-primary);
+}
+
+.btn-download-chapter:hover {
+  background-color: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+}
+
 /* ============================================================
    MOBILE RESPONSIVE DESIGN SYSTEM
    Optimized layout, touch targets, and mobile navigation

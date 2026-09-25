@@ -840,18 +840,213 @@ window.App = {
         </div>
         <div class="checkbox-grid">
           ${subj.units.map((unit, unitIdx) => {
-      const key = `${subjIdx}_${unitIdx}`;
-      const isChecked = !!savedSyllabus[key];
-      return `
-              <label class="check-label">
-                <input type="checkbox" data-unit-key="${key}" ${isChecked ? 'checked' : ''} onchange="App.toggleSyllabusUnit('${this.activeExam}', '${key}', this.checked)">
-                <span>${unit}</span>
-              </label>
+            const key = `${subjIdx}_${unitIdx}`;
+            const isChecked = !!savedSyllabus[key];
+            const cleanSubj = this.escapeHtml(subj.subject);
+            const cleanUnit = this.escapeHtml(unit);
+            return `
+              <div class="syllabus-unit-item">
+                <label class="check-label">
+                  <input type="checkbox" data-unit-key="${key}" ${isChecked ? 'checked' : ''} onchange="App.toggleSyllabusUnit('${this.activeExam}', '${key}', this.checked)">
+                  <span>${cleanUnit}</span>
+                </label>
+                <div class="syllabus-unit-actions">
+                  <button class="btn-syllabus-action btn-link-chapter" 
+                          title="Open Video Lectures & Study Notes for ${cleanUnit}" 
+                          onclick="event.stopPropagation(); App.openChapterResource('${cleanSubj.replace(/'/g, "\\'")}', '${cleanUnit.replace(/'/g, "\\'")}', '${this.activeExam}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                  </button>
+                  <button class="btn-syllabus-action btn-download-chapter" 
+                          title="Download ${cleanUnit} PDF Study Guide" 
+                          onclick="event.stopPropagation(); App.downloadChapterPDF('${cleanSubj.replace(/'/g, "\\'")}', '${cleanUnit.replace(/'/g, "\\'")}', '${this.activeExam}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             `;
-    }).join('')}
+          }).join('')}
         </div>
       </div>
     `).join('');
+  },
+
+  openChapterResource: function (subject, chapterName, examId) {
+    const config = window.getExamConfig(examId || this.activeExam || 'boards');
+    const examName = config ? config.name : 'Pathshalla Track';
+    const query = `${examName} ${subject} ${chapterName} lecture notes`;
+    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+
+    window.open(searchUrl, '_blank', 'noopener,noreferrer');
+    this.showToast(`Opened study resources for ${chapterName}! 🔗`, 'success');
+    if (window.trackGAEvent) {
+      window.trackGAEvent('open_chapter_link', { exam: examId, subject, chapter: chapterName });
+    }
+  },
+
+  downloadChapterPDF: function (subject, chapterName, examId) {
+    const config = window.getExamConfig(examId || this.activeExam || 'boards');
+    const examName = config ? config.name : 'Pathshalla Track';
+    
+    const htmlDoc = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${chapterName} - ${subject} Study Guide | Pathshalla</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      padding: 35px;
+      color: #0f172a;
+      background-color: #ffffff;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #2563eb;
+      letter-spacing: -0.5px;
+    }
+    .exam-badge {
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #bfdbfe;
+    }
+    .chapter-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 25px;
+    }
+    .subject-name {
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 1px;
+    }
+    .chapter-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 6px 0 0 0;
+    }
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 22px 0 12px 0;
+    }
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .checkbox-box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #94a3b8;
+      border-radius: 4px;
+    }
+    .notes-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      height: 220px;
+      background: #f8fafc;
+      padding: 15px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 15px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand-title">PATHSHALLA</div>
+    <div class="exam-badge">${examName}</div>
+  </div>
+
+  <div class="chapter-card">
+    <div class="subject-name">Subject: ${subject}</div>
+    <div class="chapter-title">${chapterName}</div>
+  </div>
+
+  <div class="section-title">🎯 Chapter Mastery & Revision Objectives</div>
+  <ul class="checklist">
+    <li class="checklist-item"><div class="checkbox-box"></div> Core Concepts & Definitions Mastery for ${chapterName}</li>
+    <li class="checklist-item"><div class="checkbox-box"></div> Standard Textbook & NCERT Exercises Practice</li>
+    <li class="checklist-item"><div class="checkbox-box"></div> Key Formulas, Derivations & Diagrams Review</li>
+    <li class="checklist-item"><div class="checkbox-box"></div> Previous 10 Years Question Bank (PYQs) Solved</li>
+    <li class="checklist-item"><div class="checkbox-box"></div> Chapter Summary & Error Analysis Completed</li>
+  </ul>
+
+  <div class="section-title">📝 Key Formulae & Revision Notes</div>
+  <div class="notes-box">
+    Write key formulas, shortcuts, and important notes for ${chapterName} here...
+  </div>
+
+  <div class="footer">
+    Pathshalla — Daily Progress & Exam Prep Tracker · Empowering Daily Discipline & Learning
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlDoc], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const safeName = `${examId}_${subject}_${chapterName}`.replace(/[^a-zA-Z0-9_\-]/g, '_');
+    link.download = `${safeName}_StudyGuide.html`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    this.showToast(`Downloaded chapter guide for ${chapterName}! 📥`, 'success');
+    if (window.trackGAEvent) {
+      window.trackGAEvent('download_chapter_pdf', { exam: examId, subject, chapter: chapterName });
+    }
   },
 
   toggleSyllabusUnit: function (examId, key, isChecked) {
