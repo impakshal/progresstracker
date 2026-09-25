@@ -14,9 +14,7 @@ window.App = {
   activeAnalyticsPreset: '30days',
   activeExam: 'boards',
   logs: {},
-  _saveTimer: null,
-  timerInterval: null,
-  timerSeconds: 25 * 60,
+  deferredInstallPrompt: null,
 
   init: function () {
     this.loadTheme();
@@ -27,9 +25,50 @@ window.App = {
     this.updateStreakBadge();
     this.renderSyllabus();
     this.initTimer();
+    this.initPWA();
     if (window.Router) {
       window.Router.init();
     }
+  },
+
+  initPWA: function () {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => {
+            console.log('[PWA] Service Worker registered successfully:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[PWA] Service Worker registration failed:', err);
+          });
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredInstallPrompt = e;
+      console.log('[PWA] beforeinstallprompt captured');
+
+      const installBtn = document.getElementById('btn-install-pwa');
+      if (installBtn) installBtn.classList.remove('hidden');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      this.deferredInstallPrompt = null;
+      this.showToast('🎉 Pathshalla App installed successfully!', 'success');
+      document.getElementById('btn-install-pwa')?.classList.add('hidden');
+    });
+
+    document.getElementById('btn-install-pwa')?.addEventListener('click', async () => {
+      if (!this.deferredInstallPrompt) return;
+      this.deferredInstallPrompt.prompt();
+      const choice = await this.deferredInstallPrompt.userChoice;
+      if (choice?.outcome === 'accepted') {
+        console.log('[PWA] User accepted installation prompt');
+      }
+      this.deferredInstallPrompt = null;
+      document.getElementById('btn-install-pwa')?.classList.add('hidden');
+    });
   },
 
   isCloudMode: function () {

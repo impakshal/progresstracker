@@ -8,6 +8,16 @@
   <meta name="description"
     content="Pathshalla — Comprehensive daily progress and study tracker for Board Exams, JEE, NEET, and UPSC aspirants.">
 
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pathshalla">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -54,6 +64,11 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
+        </button>
+
+        <!-- PWA Install App Button -->
+        <button class="btn btn-primary btn-sm hidden" id="btn-install-pwa" title="Install Pathshalla App" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: var(--radius-pill);">
+          <span>📲</span> <span>Install App</span>
         </button>
 
         <!-- Minimal Blue Circle Profile Button -->

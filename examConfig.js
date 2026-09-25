@@ -116,16 +116,118 @@ window.EXAM_CONFIGS = {
     ],
     syllabus: [
       {
-        subject: 'Physics',
-        units: ['Kinematics & Laws of Motion', 'Work, Energy & Power', 'Rotational Dynamics', 'Electrostatics & Magnetism', 'Optics & Modern Physics']
+        subject: 'Physics (Class-11)',
+        class: 11,
+        units: [
+          'Units and Measurements',
+          'Motion in a Straight Line',
+          'Motion in a Plane',
+          'Laws of Motion',
+          'Work, Energy and Power',
+          'System of Particles and Rotational Motion',
+          'Gravitation',
+          'Properties of Bulk Matter',
+          'Thermodynamics',
+          'Kinetic Theory of Gases',
+          'Oscillations',
+          'Waves'
+        ]
       },
       {
-        subject: 'Chemistry',
-        units: ['Physical Chemistry & Thermodynamics', 'Organic Mechanisms & Hydrocarbons', 'Inorganic & Coordination Compounds', 'Chemical Kinetics & Equilibrium', 'Polymers & Biomolecules']
+        subject: 'Chemistry (Class-11)',
+        class: 11,
+        units: [
+          'Some Basic Concepts of Chemistry',
+          'Structure of Atom',
+          'States of Matter',
+          'Thermodynamics',
+          'Equilibrium',
+          'Redox Reactions',
+          'Classification of Elements and Periodicity in Properties',
+          'Chemical Bonding and Molecular Structure',
+          'Hydrogen',
+          's-Block Elements',
+          'Some p-Block Elements',
+          'Organic Chemistry – Some Basic Principles and Techniques',
+          'Hydrocarbons'
+        ]
+    },
+      {
+        subject: 'Mathematics (Class-11)',
+        class: 11,
+        units: [
+          'Sets, Relations and Functions',
+          'Trigonometric Functions',
+          'Complex Numbers',
+          'Quadratic Equations',
+          'Sequences and Series',
+          'Permutations and Combinations',
+          'Binomial Theorem',
+          'Straight Lines',
+          'Conic Sections',
+          'Introduction to Three Dimensional Geometry',
+          'Limits and Derivatives',
+          'Statistics',
+          'Probability'
+        ]
       },
       {
-        subject: 'Mathematics',
-        units: ['Calculus & Differential Equations', 'Algebra & Complex Numbers', 'Coordinate Geometry & Conic Sections', 'Vector Algebra & 3D Geometry', 'Trigonometry & Matrices']
+        subject: 'Physics (Class-12)',
+        class: 12,
+        units: [
+          'Electric Charges and Fields',
+          'Electrostatic Potential and Capacitance',
+          'Current Electricity',
+          'Moving Charges and Magnetism',
+          'Magnetism and Matter',
+          'Electromagnetic Induction',
+          'Alternating Current',
+          'Electromagnetic Waves',
+          'Ray Optics and Optical Instruments',
+          'Wave Optics',
+          'Dual Nature of Radiation and Matter',
+          'Atoms',
+          'Nuclei',
+          'Semiconductor Electronics'
+        ]
+      },
+      {
+        subject: 'Chemistry (Class-12)',
+        class: 12,
+        units: [
+          'Some Basic Concepts of Chemistry',
+          'Structure of Atom',
+          'States of Matter',
+          'Thermodynamics',
+          'Equilibrium',
+          'Redox Reactions',
+          'Organic Chemistry – Some Basic Principles and Techniques',
+          'Hydrocarbons',
+          'Classification of Elements and Periodicity in Properties',
+          'Chemical Bonding and Molecular Structure',
+          'Hydrogen',
+          's-Block Elements',
+          'Some p-Block Elements'
+        ]
+      },
+      {
+        subject: 'Mathematics (Class-12)',
+        class: 12,
+        units: [
+          'Relations and Functions',
+          'Inverse Trigonometric Functions',
+          'Matrices',
+          'Determinants',
+          'Continuity and Differentiability',
+          'Applications of Derivatives',
+          'Integrals',
+          'Applications of Integrals',
+          'Differential Equations',
+          'Vector Algebra',
+          'Three Dimensional Geometry',
+          'Linear Programming',
+          'Probability'
+        ]
       }
     ]
   },
@@ -169,20 +271,124 @@ window.EXAM_CONFIGS = {
     ],
     syllabus: [
       {
-        subject: 'Biology (Botany)',
-        units: ['Diversity in Living World', 'Plant Anatomy & Physiology', 'Cell Biology & Division', 'Genetics & Molecular Basis', 'Ecology & Environment']
+        subject: 'Physics (Class-11)',
+        class: 11,
+        units: [
+          'Units and Measurements',
+          'Motion in a Straight Line',
+          'Motion in a Plane',
+          'Laws of Motion',
+          'Work, Energy and Power',
+          'System of Particles and Rotational Motion',
+          'Gravitation',
+          'Properties of Bulk Matter',
+          'Thermodynamics',
+          'Kinetic Theory of Gases',
+          'Oscillations',
+          'Waves'
+        ]
       },
       {
-        subject: 'Biology (Zoology)',
-        units: ['Human Physiology & Health', 'Animal Kingdom & Tissue Structure', 'Reproduction & Development', 'Biotechnology & Applications', 'Evolution & Human Welfare']
+        subject: 'Chemistry (Class-11)',
+        class: 11,
+        units: [
+          'Some Basic Concepts of Chemistry',
+          'Structure of Atom',
+          'States of Matter',
+          'Thermodynamics',
+          'Equilibrium',
+          'Redox Reactions',
+          'Classification of Elements and Periodicity in Properties',
+          'Chemical Bonding and Molecular Structure',
+          'Hydrogen',
+          's-Block Elements',
+          'Some p-Block Elements',
+          'Organic Chemistry – Some Basic Principles and Techniques',
+          'Hydrocarbons'
+        ]
+    },
+      {
+        subject: 'Biology (Class-11)',
+        class: 11,
+        units: [
+            'The Living World',
+            'Biological Classification',
+            'Plant Kingdom',
+            'Morphology of Flowering Plants',
+            'Anatomy of Flowering Plants',
+            'Cell: The Unit of Life',
+            'Biomolecules',
+            'Cell Cycle and Cell Division',
+            'Transport in Plants',
+            'Mineral Nutrition',
+            'Photosynthesis in Plants',
+            'Respiration in Plants',
+            'Plant Growth and Development',
+            'Animal Kingdom',
+            'Structural Organisation in Animals',
+            'Digestion and Absorption',
+            'Breathing and Exchange of Gases',
+            'Body Fluids and Circulation',
+            'Excretory Products and their Elimination',
+            'Locomotion and Movement',
+            'Neural Control and Coordination',
+            'Chemical Coordination and Integration'
+        ]
       },
       {
-        subject: 'Chemistry',
-        units: ['Organic Chemistry NCERT', 'Inorganic Chemistry & Periodic Table', 'Physical Chemistry & Solutions', 'Chemical Bonding & Structure', 'Biomolecules & Polymers']
+        subject: 'Physics (Class-12)',
+        class: 12,
+        units: [
+          'Electric Charges and Fields',
+          'Electrostatic Potential and Capacitance',
+          'Current Electricity',
+          'Moving Charges and Magnetism',
+          'Magnetism and Matter',
+          'Electromagnetic Induction',
+          'Alternating Current',
+          'Electromagnetic Waves',
+          'Ray Optics and Optical Instruments',
+          'Wave Optics',
+          'Dual Nature of Radiation and Matter',
+          'Atoms',
+          'Nuclei',
+          'Semiconductor Electronics'
+        ]
       },
       {
-        subject: 'Physics',
-        units: ['Mechanics & Properties of Matter', 'Heat & Thermodynamics', 'Electrostatics & Current', 'Magnetism & EMI', 'Optics & Semiconductors']
+        subject: 'Chemistry (Class-12)',
+        class: 12,
+        units: [
+          'Some Basic Concepts of Chemistry',
+          'Structure of Atom',
+          'States of Matter',
+          'Thermodynamics',
+          'Equilibrium',
+          'Redox Reactions',
+          'Organic Chemistry – Some Basic Principles and Techniques',
+          'Hydrocarbons',
+          'Classification of Elements and Periodicity in Properties',
+          'Chemical Bonding and Molecular Structure',
+          'Hydrogen',
+          's-Block Elements',
+          'Some p-Block Elements'
+        ]
+      },
+      {
+        subject: 'Biology (Class-12)',
+        class: 12,
+        units: [
+          'Sexual Reproduction in Flowering Plants',
+          'Principles of Inheritance and Variation',
+          'Molecular Basis of Inheritance',
+          'Biotechnology: Principles and Processes',
+          'Biotechnology and its Applications',
+          'Ecology and Environment',
+          'Human Reproduction',
+          'Reproductive Health',
+          'Evolution',
+          'Human Health and Disease'
+        ]
       }
     ]
   },
